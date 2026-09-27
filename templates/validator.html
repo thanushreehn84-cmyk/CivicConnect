@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Validator Dashboard | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Validator Dashboard</span>
+                </div>
+
+            </div>
+
+            <nav>
+                <a href="/">Home</a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <main class="track-page">
+
+        <div class="track-container">
+
+            <div class="track-heading">
+
+                <span>ADMIN VALIDATION</span>
+
+                <h1>Complaint Validation</h1>
+
+                <p>
+                    Review submitted complaints before they
+                    are forwarded to the concerned department.
+                </p>
+
+            </div>
+
+
+            {% if complaints %}
+
+                {% for complaint in complaints %}
+
+                <div class="track-result">
+
+                    <div class="track-result-header">
+
+                        <div>
+
+                            <span>COMPLAINT ID</span>
+
+                            <h2>
+                                {{ complaint["complaint_id"] }}
+                            </h2>
+
+                        </div>
+
+                        <div class="track-status">
+                            {{ complaint["status"] }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="track-details">
+
+                        <div>
+                            <span>Category</span>
+
+                            <strong>
+                                {{ complaint["category"] }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Location</span>
+
+                            <strong>
+                                {{ complaint["location"] }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Date</span>
+
+                            <strong>
+                                {{ complaint["date"] }}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Department</span>
+
+                            <strong>
+                                {{ complaint["department"] }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="track-description">
+
+                        <span>Complaint Description</span>
+
+                        <p>
+                            {{ complaint["description"] }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="success-buttons">
+
+                        <form method="POST"
+                              action="/validate/{{ complaint['complaint_id'] }}">
+
+                            <button type="submit"
+                                    class="btn primary-btn">
+
+                                ✓ Validate Complaint
+
+                            </button>
+
+                        </form>
+
+
+                        <form method="POST"
+                              action="/reject/{{ complaint['complaint_id'] }}">
+
+                            <button type="submit"
+                                    class="btn secondary-btn">
+
+                                ✕ Reject Complaint
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="track-result">
+
+                    <h2>
+                        No complaints pending validation
+                    </h2>
+
+                    <p>
+                        All submitted complaints have been reviewed.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>CivicConnect</h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

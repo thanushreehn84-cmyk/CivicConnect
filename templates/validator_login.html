@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Validator Login | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Validator Portal</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="track-page">
+
+        <div class="track-container">
+
+            <div class="track-heading">
+
+                <span>AUTHORIZED ACCESS</span>
+
+                <h1>Validator Login</h1>
+
+                <p>
+                    Login to review and validate submitted
+                    civic complaints.
+                </p>
+
+            </div>
+
+
+            <form class="track-form"
+                  method="POST">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter username"
+                    required>
+
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter password"
+                    required>
+
+
+                {% if error %}
+
+                <div class="track-error">
+                    {{ error }}
+                </div>
+
+                {% endif %}
+
+
+                <button type="submit"
+                        class="btn primary-btn">
+
+                    Login
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>CivicConnect</h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

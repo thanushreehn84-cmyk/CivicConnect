@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Track Complaint | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        /* STATUS TIMELINE */
+
+        .status-timeline {
+            margin-top: 35px;
+            padding: 25px;
+            background: #f8fafc;
+            border: 1px solid #dbe3ec;
+            border-radius: 12px;
+        }
+
+        .status-timeline h3 {
+            margin-bottom: 25px;
+            color: #123f73;
+        }
+
+        .timeline {
+            position: relative;
+            margin-left: 15px;
+        }
+
+        .timeline-step {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+            min-height: 70px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 13px;
+            top: 28px;
+            width: 3px;
+            height: 55px;
+            background: #d5dce5;
+        }
+
+        .timeline-step.completed .timeline-line {
+            background: #16834a;
+        }
+
+        .timeline-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #c8d0da;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #8994a1;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .timeline-step.completed .timeline-icon {
+            background: #16834a;
+            border-color: #16834a;
+            color: white;
+        }
+
+        .timeline-step.current .timeline-icon {
+            border-color: #145a9c;
+            color: #145a9c;
+            background: #eaf3ff;
+        }
+
+        .timeline-content {
+            margin-left: 15px;
+            padding-bottom: 20px;
+        }
+
+        .timeline-content strong {
+            display: block;
+            color: #253b53;
+            font-size: 15px;
+        }
+
+        .timeline-content span {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .timeline-step.completed .timeline-content strong {
+            color: #16834a;
+        }
+
+        .timeline-step.current .timeline-content strong {
+            color: #145a9c;
+        }
+
+        .flagged-message {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff7e6;
+            border-left: 4px solid #d98b00;
+            border-radius: 5px;
+            color: #765000;
+        }
+
+        .rejected-message {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff0f0;
+            border-left: 4px solid #c62828;
+            border-radius: 5px;
+            color: #7a1c1c;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Citizen Complaint Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+                <a href="/">Home</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#about">About</a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- TRACK PAGE -->
+
+    <main class="track-page">
+
+        <div class="track-container">
+
+            <div class="track-heading">
+
+                <span>COMPLAINT TRACKING</span>
+
+                <h1>Track Your Complaint</h1>
+
+                <p>
+                    Enter your Complaint ID to view the current
+                    status of your complaint.
+                </p>
+
+            </div>
+
+
+            <!-- SEARCH FORM -->
+
+            <form class="track-form"
+                  method="POST">
+
+                <label for="complaint_id">
+                    Complaint ID
+                </label>
+
+                <input
+                    type="text"
+                    id="complaint_id"
+                    name="complaint_id"
+                    placeholder="Example: CMP12345"
+                    required>
+
+                <button type="submit"
+                        class="btn primary-btn">
+                    Track Complaint
+                </button>
+
+            </form>
+
+
+            {% if complaint %}
+
+            <!-- COMPLAINT RESULT -->
+
+            <div class="track-result">
+
+                <div class="track-result-header">
+
+                    <div>
+
+                        <span>COMPLAINT ID</span>
+
+                        <h2>
+                            {{ complaint["complaint_id"] }}
+                        </h2>
+
+                    </div>
+
+                    <div class="track-status">
+                        {{ complaint["status"] }}
+                    </div>
+
+                </div>
+
+
+                <!-- COMPLAINT DETAILS -->
+
+                <div class="track-details">
+
+                    <div>
+                        <span>Category</span>
+
+                        <strong>
+                            {{ complaint["category"] }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Location</span>
+
+                        <strong>
+                            {{ complaint["location"] }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Date</span>
+
+                        <strong>
+                            {{ complaint["date"] }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Department</span>
+
+                        <strong>
+                            {{ complaint["department"] }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="track-description">
+
+                    <span>Complaint Description</span>
+
+                    <p>
+                        {{ complaint["description"] }}
+                    </p>
+
+                </div>
+
+
+                <!-- STATUS TIMELINE -->
+
+                <div class="status-timeline">
+
+                    <h3>
+                        Complaint Progress
+                    </h3>
+
+                    <div class="timeline">
+
+
+                        <!-- STEP 1 -->
+
+                        <div class="timeline-step completed">
+
+                            <div class="timeline-line"></div>
+
+                            <div class="timeline-icon">
+                                ✓
+                            </div>
+
+                            <div class="timeline-content">
+
+                                <strong>
+                                    Complaint Submitted
+                                </strong>
+
+                                <span>
+                                    Your complaint was successfully received.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STEP 2 -->
+
+                        <div class="
+                            timeline-step
+                            {% if complaint['status'] in ['Assigned', 'Under Review', 'Resolved'] %}
+                                completed
+                            {% elif complaint['status'] == 'Flagged for Review' %}
+                                current
+                            {% endif %}
+                        ">
+
+                            <div class="timeline-line"></div>
+
+                            <div class="timeline-icon">
+
+                                {% if complaint['status'] in ['Assigned', 'Under Review', 'Resolved'] %}
+                                    ✓
+                                {% else %}
+                                    2
+                                {% endif %}
+
+                            </div>
+
+                            <div class="timeline-content">
+
+                                <strong>
+                                    Automatically Validated
+                                </strong>
+
+                                <span>
+                                    Complaint passed the automatic screening process.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STEP 3 -->
+
+                        <div class="
+                            timeline-step
+                            {% if complaint['status'] in ['Under Review', 'Resolved'] %}
+                                completed
+                            {% elif complaint['status'] == 'Assigned' %}
+                                current
+                            {% endif %}
+                        ">
+
+                            <div class="timeline-line"></div>
+
+                            <div class="timeline-icon">
+
+                                {% if complaint['status'] in ['Under Review', 'Resolved'] %}
+                                    ✓
+                                {% else %}
+                                    3
+                                {% endif %}
+
+                            </div>
+
+                            <div class="timeline-content">
+
+                                <strong>
+                                    Assigned to Department
+                                </strong>
+
+                                <span>
+                                    Assigned to {{ complaint["department"] }}.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STEP 4 -->
+
+                        <div class="
+                            timeline-step
+                            {% if complaint['status'] == 'Resolved' %}
+                                completed
+                            {% elif complaint['status'] == 'Under Review' %}
+                                current
+                            {% endif %}
+                        ">
+
+                            <div class="timeline-line"></div>
+
+                            <div class="timeline-icon">
+
+                                {% if complaint['status'] == 'Resolved' %}
+                                    ✓
+                                {% else %}
+                                    4
+                                {% endif %}
+
+                            </div>
+
+                            <div class="timeline-content">
+
+                                <strong>
+                                    Under Review
+                                </strong>
+
+                                <span>
+                                    Department is reviewing the complaint.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STEP 5 -->
+
+                        <div class="
+                            timeline-step
+                            {% if complaint['status'] == 'Resolved' %}
+                                completed
+                            {% endif %}
+                        ">
+
+                            <div class="timeline-icon">
+
+                                {% if complaint['status'] == 'Resolved' %}
+                                    ✓
+                                {% else %}
+                                    5
+                                {% endif %}
+
+                            </div>
+
+                            <div class="timeline-content">
+
+                                <strong>
+                                    Resolved
+                                </strong>
+
+                                <span>
+                                    Complaint has been resolved.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- FLAGGED MESSAGE -->
+
+                    {% if complaint["status"] == "Flagged for Review" %}
+
+                    <div class="flagged-message">
+
+                        <strong>
+                            Complaint Under Validation
+                        </strong>
+
+                        <p>
+                            Your complaint has been flagged for additional
+                            validation before it can be assigned to a department.
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <!-- REJECTED MESSAGE -->
+
+                    {% if complaint["status"] == "Rejected" %}
+
+                    <div class="rejected-message">
+
+                        <strong>
+                            Complaint Rejected
+                        </strong>
+
+                        <p>
+                            This complaint did not pass the validation process
+                            and was not assigned to a department.
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+            {% endif %}
+
+
+            {% if error %}
+
+            <div class="track-error">
+
+                {{ error }}
+
+            </div>
+
+            {% endif %}
+
+
+        </div>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>CivicConnect</h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

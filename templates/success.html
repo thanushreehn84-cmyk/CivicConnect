@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Complaint Submitted | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Citizen Complaint Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+
+                <a href="/">
+                    Home
+                </a>
+
+                <a href="/#how-it-works">
+                    How It Works
+                </a>
+
+                <a href="/#about">
+                    About
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- SUCCESS PAGE -->
+
+    <main class="track-page">
+
+        <div class="track-container">
+
+            <div class="track-result">
+
+                <!-- SUCCESS ICON -->
+
+                <div style="
+                    text-align: center;
+                    margin-bottom: 25px;
+                ">
+
+                    <div style="
+                        width: 75px;
+                        height: 75px;
+                        border-radius: 50%;
+                        background: #e8f7ed;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 20px auto;
+                        font-size: 42px;
+                        color: #16834a;
+                    ">
+                        ✓
+                    </div>
+
+                    <span>
+                        COMPLAINT SUBMITTED
+                    </span>
+
+                    <h1>
+                        Your Complaint Has Been Submitted
+                    </h1>
+
+                    <p>
+                        Your civic complaint has been successfully
+                        recorded. Please save your Complaint ID to
+                        track its status later.
+                    </p>
+
+                </div>
+
+
+                <!-- COMPLAINT ID -->
+
+                <div style="
+                    text-align: center;
+                    padding: 25px;
+                    background: #f7f9fc;
+                    border: 1px solid #dbe3ec;
+                    border-radius: 10px;
+                    margin-bottom: 25px;
+                ">
+
+                    <span>
+                        YOUR COMPLAINT ID
+                    </span>
+
+                    <h2 style="
+                        font-size: 32px;
+                        color: #123f73;
+                        margin: 10px 0 0 0;
+                    ">
+                        {{ complaint_id }}
+                    </h2>
+
+                </div>
+
+
+                <!-- COMPLAINT DETAILS -->
+
+                <div class="track-details">
+
+                    <div>
+
+                        <span>
+                            Category
+                        </span>
+
+                        <strong>
+                            {{ category }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Assigned Department
+                        </span>
+
+                        <strong>
+                            {{ department }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Current Status
+                        </span>
+
+                        <strong>
+                            {{ status }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS INFORMATION -->
+
+                {% if status == "Assigned" %}
+
+                <div style="
+                    margin-top: 25px;
+                    padding: 18px;
+                    background: #eaf4ff;
+                    border-left: 4px solid #145a9c;
+                    border-radius: 5px;
+                ">
+
+                    <strong>
+                        Complaint Assigned
+                    </strong>
+
+                    <p>
+                        Your complaint has passed the initial
+                        screening and has been assigned to the
+                        {{ department }}.
+                    </p>
+
+                </div>
+
+                {% elif status == "Flagged for Review" %}
+
+                <div style="
+                    margin-top: 25px;
+                    padding: 18px;
+                    background: #fff7e6;
+                    border-left: 4px solid #d98b00;
+                    border-radius: 5px;
+                ">
+
+                    <strong>
+                        Complaint Under Validation
+                    </strong>
+
+                    <p>
+                        Your complaint has been flagged for
+                        additional validation before it can be
+                        assigned to a department.
+                    </p>
+
+                </div>
+
+                {% elif status == "Rejected" %}
+
+                <div style="
+                    margin-top: 25px;
+                    padding: 18px;
+                    background: #fff0f0;
+                    border-left: 4px solid #c62828;
+                    border-radius: 5px;
+                ">
+
+                    <strong>
+                        Complaint Rejected
+                    </strong>
+
+                    <p>
+                        Your complaint did not pass the validation
+                        process and was not assigned to a department.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- IMPORTANT MESSAGE -->
+
+                <div style="
+                    margin-top: 25px;
+                    padding: 18px;
+                    background: #f8fafc;
+                    border-left: 4px solid #145a9c;
+                    border-radius: 5px;
+                ">
+
+                    <strong>
+                        Important
+                    </strong>
+
+                    <p>
+                        Keep your Complaint ID safe. You will need
+                        this ID to track your complaint.
+                    </p>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="success-buttons"
+                     style="
+                        display: flex;
+                        justify-content: center;
+                        gap: 15px;
+                        margin-top: 30px;
+                        flex-wrap: wrap;
+                     ">
+
+                    <a href="/"
+                       class="btn primary-btn">
+
+                        Back to Home
+
+                    </a>
+
+
+                    <a href="/track"
+                       class="btn secondary-btn">
+
+                        Track Complaint
+
+                    </a>
+
+
+                    <a href="/report"
+                       class="btn secondary-btn">
+
+                        Submit Another Complaint
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>
+                    CivicConnect
+                </h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Report an Issue | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Citizen Complaint Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+                <a href="/">Home</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#about">About</a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- REPORT PAGE -->
+
+    <main class="report-page">
+
+        <div class="report-container">
+
+            <div class="report-heading">
+
+                <span>SUBMIT A COMPLAINT</span>
+
+                <h1>Report a Civic Issue</h1>
+
+                <p>
+                    Provide the details of the civic issue below.
+                    No personal information is required.
+                </p>
+
+            </div>
+
+
+            <!-- PRIVACY NOTICE -->
+
+            <div class="report-privacy">
+
+                <strong>
+                    🔒 Anonymous Reporting
+                </strong>
+
+                <p>
+                    Do not enter your name, phone number, email
+                    address, or other personally identifying
+                    information in this form.
+                </p>
+
+            </div>
+
+
+            <!-- COMPLAINT FORM -->
+
+            <form class="complaint-form"
+                  method="POST"
+                  enctype="multipart/form-data">
+
+
+                <!-- CATEGORY -->
+
+                <div class="form-group">
+
+                    <label for="category">
+                        Complaint Category
+                        <span>*</span>
+                    </label>
+
+                    <select id="category"
+                            name="category"
+                            required>
+
+                        <option value="">
+                            Select a category
+                        </option>
+
+                        <option value="Illegal Construction">
+                            Illegal Construction
+                        </option>
+
+                        <option value="Environmental Issue">
+                            Environmental Issue
+                        </option>
+
+                        <option value="Traffic Issue">
+                            Traffic Issue
+                        </option>
+
+                        <option value="Public Safety">
+                            Public Safety
+                        </option>
+
+                        <option value="Other Civic Issue">
+                            Other Civic Issue
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Location
+                        <span>*</span>
+                    </label>
+
+                    <input type="text"
+                           id="location"
+                           name="location"
+                           placeholder="Enter the location of the issue"
+                           required>
+
+                </div>
+
+
+                <!-- DATE -->
+
+                <div class="form-group">
+
+                    <label for="date">
+                        Date of Incident
+                        <span>*</span>
+                    </label>
+
+                    <input type="date"
+                           id="date"
+                           name="date"
+                           required>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group">
+
+                    <label for="description">
+                        Complaint Description
+                        <span>*</span>
+                    </label>
+
+                    <textarea id="description"
+                              name="description"
+                              rows="7"
+                              placeholder="Describe the civic issue clearly..."
+                              required></textarea>
+
+                </div>
+
+
+                <!-- IMAGE -->
+
+                <div class="form-group">
+
+                    <label for="image">
+                        Image Evidence
+                        <span class="optional">
+                            Optional
+                        </span>
+                    </label>
+
+                    <input type="file"
+                           id="image"
+                           name="image"
+                           accept="image/*">
+
+                    <small>
+                        You may upload an image related to the complaint.
+                    </small>
+
+                </div>
+
+
+                <!-- VIDEO -->
+
+                <div class="form-group">
+
+                    <label for="video">
+                        Video Evidence
+                        <span class="optional">
+                            Optional
+                        </span>
+                    </label>
+
+                    <input type="file"
+                           id="video"
+                           name="video"
+                           accept="video/*">
+
+                    <small>
+                        You may upload a video related to the complaint.
+                    </small>
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <div class="form-submit">
+                    <div class="form-group">
+
+    <label for="captcha">
+        Security Check
+    </label>
+
+    <p>
+        Please solve:
+        <strong>{{ captcha_question }}</strong>
+    </p>
+
+    <input
+        type="number"
+        id="captcha"
+        name="captcha"
+        placeholder="Enter your answer"
+        required>
+
+</div>
+
+{% if error %}
+
+<div class="track-error">
+    {{ error }}
+</div>
+
+{% endif %}
+
+                    <button type="submit"
+                            class="btn primary-btn">
+                        Submit Complaint
+                    </button>
+
+                    <a href="/"
+                       class="cancel-btn">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+                <h3>CivicConnect</h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+            </div>
+
+            <div>
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

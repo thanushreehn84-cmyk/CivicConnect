@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ department }} | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="nav-container">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                CC
+            </div>
+
+            <div>
+
+                <h2>CivicConnect</h2>
+
+                <span>Department Dashboard</span>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/track">
+                Track Complaint
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<main class="track-page">
+
+    <div class="track-container">
+
+
+        <div class="track-heading">
+
+            <span>DEPARTMENT PORTAL</span>
+
+            <h1>
+                {{ department }}
+            </h1>
+
+            <p>
+                Manage complaints assigned to your department.
+            </p>
+
+        </div>
+
+
+
+        {% if complaints %}
+
+
+            {% for complaint in complaints %}
+
+
+            <div class="track-result">
+
+
+                <!-- COMPLAINT HEADER -->
+
+                <div class="track-result-header">
+
+                    <div>
+
+                        <span>
+                            COMPLAINT ID
+                        </span>
+
+                        <h2>
+                            {{ complaint["complaint_id"] }}
+                        </h2>
+
+                    </div>
+
+
+                    <div class="track-status">
+
+                        {{ complaint["status"] }}
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- COMPLAINT DETAILS -->
+
+                <div class="track-details">
+
+
+                    <div>
+
+                        <span>
+                            Category
+                        </span>
+
+                        <strong>
+                            {{ complaint["category"] }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Location
+                        </span>
+
+                        <strong>
+                            {{ complaint["location"] }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Date
+                        </span>
+
+                        <strong>
+                            {{ complaint["date"] }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Status
+                        </span>
+
+                        <strong>
+                            {{ complaint["status"] }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="track-description">
+
+                    <span>
+                        Complaint Description
+                    </span>
+
+                    <p>
+                        {{ complaint["description"] }}
+                    </p>
+
+                </div>
+
+
+
+                <!-- VALIDATION INFORMATION -->
+
+                <div class="track-description">
+
+                    <span>
+                        Automatic Validation
+                    </span>
+
+                    <p>
+
+                        {{ complaint["validation_message"] }}
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- ACTION BUTTONS -->
+
+                <div class="success-buttons">
+
+
+                    {% if complaint["status"] == "Assigned" %}
+
+
+                    <form
+                        method="POST"
+                        action="/department/review/{{ complaint['complaint_id'] }}"
+                    >
+
+                        <button
+                            type="submit"
+                            class="btn primary-btn"
+                        >
+
+                            Start Review
+
+                        </button>
+
+                    </form>
+
+
+                    {% elif complaint["status"] == "Under Review" %}
+
+
+                    <form
+                        method="POST"
+                        action="/department/resolve/{{ complaint['complaint_id'] }}"
+                    >
+
+                        <button
+                            type="submit"
+                            class="btn primary-btn"
+                        >
+
+                            Mark as Resolved
+
+                        </button>
+
+                    </form>
+
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <div class="track-result">
+
+                <h2>
+                    No complaints assigned
+                </h2>
+
+                <p>
+                    There are currently no complaints
+                    requiring action from this department.
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+</main>
+
+
+
+<footer>
+
+    <div class="footer-container">
+
+
+        <div>
+
+            <h3>
+                CivicConnect
+            </h3>
+
+            <p>
+                Anonymous Civic Complaint Portal
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <p>
+                © 2026 CivicConnect.
+                All rights reserved.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</footer>
+
+
+</body>
+
+</html>
