@@ -17,7 +17,9 @@
 
 <body>
 
-    <!-- NAVBAR -->
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
 
     <header class="navbar">
 
@@ -37,19 +39,9 @@
             </div>
 
             <nav>
-
-                <a href="/">
-                    Home
-                </a>
-
-                <a href="/#how-it-works">
-                    How It Works
-                </a>
-
-                <a href="/#about">
-                    About
-                </a>
-
+                <a href="/">Home</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#about">About</a>
             </nav>
 
         </div>
@@ -57,251 +49,182 @@
     </header>
 
 
-    <!-- SUCCESS PAGE -->
+    <!-- ==============================
+         SUCCESS PAGE
+    =============================== -->
 
-    <main class="track-page">
+    <main class="success-page">
 
-        <div class="track-container">
+        <div class="success-container">
 
-            <div class="track-result">
+            <!-- SUCCESS ICON -->
 
-                <!-- SUCCESS ICON -->
+            <div class="success-icon">
+                ✓
+            </div>
 
-                <div style="
-                    text-align: center;
-                    margin-bottom: 25px;
-                ">
 
-                    <div style="
-                        width: 75px;
-                        height: 75px;
-                        border-radius: 50%;
-                        background: #e8f7ed;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin: 0 auto 20px auto;
-                        font-size: 42px;
-                        color: #16834a;
-                    ">
-                        ✓
-                    </div>
+            <!-- HEADING -->
 
-                    <span>
-                        COMPLAINT SUBMITTED
-                    </span>
+            <div class="success-heading">
 
-                    <h1>
-                        Your Complaint Has Been Submitted
-                    </h1>
+                <span>COMPLAINT SUBMITTED</span>
 
-                    <p>
-                        Your civic complaint has been successfully
-                        recorded. Please save your Complaint ID to
-                        track its status later.
-                    </p>
+                <h1>
+                    Your Complaint Has Been Received
+                </h1>
 
+                <p>
+                    Thank you for helping improve your community.
+                    Your complaint has been successfully recorded
+                    in the CivicConnect system.
+                </p>
+
+            </div>
+
+
+            <!-- COMPLAINT ID -->
+
+            <div class="complaint-id-box">
+
+                <p>
+                    Your Complaint ID
+                </p>
+
+                <h2>
+                    {{ complaint_id }}
+                </h2>
+
+                <small>
+                    Please save this ID. You will need it to track
+                    the status of your complaint.
+                </small>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="success-status">
+
+                <div class="status-label">
+                    Current Status
                 </div>
 
-
-                <!-- COMPLAINT ID -->
-
-                <div style="
-                    text-align: center;
-                    padding: 25px;
-                    background: #f7f9fc;
-                    border: 1px solid #dbe3ec;
-                    border-radius: 10px;
-                    margin-bottom: 25px;
-                ">
-
-                    <span>
-                        YOUR COMPLAINT ID
-                    </span>
-
-                    <h2 style="
-                        font-size: 32px;
-                        color: #123f73;
-                        margin: 10px 0 0 0;
-                    ">
-                        {{ complaint_id }}
-                    </h2>
-
+                <div class="status-value">
+                    {{ status }}
                 </div>
 
-
-                <!-- COMPLAINT DETAILS -->
-
-                <div class="track-details">
-
-                    <div>
-
-                        <span>
-                            Category
-                        </span>
-
-                        <strong>
-                            {{ category }}
-                        </strong>
-
-                    </div>
+            </div>
 
 
-                    <div>
+            <!-- AUTOMATIC VALIDATION -->
 
-                        <span>
-                            Assigned Department
-                        </span>
+            <div class="validation-box">
 
-                        <strong>
-                            {{ department }}
-                        </strong>
+                <strong>
+                    Automatic Validation
+                </strong>
 
-                    </div>
+                <p>
+                    {{ validation_message }}
+                </p>
+
+            </div>
 
 
-                    <div>
+            <!-- NEXT STEPS -->
 
-                        <span>
-                            Current Status
-                        </span>
+            <div class="success-next">
 
-                        <strong>
-                            {{ status }}
-                        </strong>
+                <h3>
+                    What happens next?
+                </h3>
+
+                <div class="success-steps">
+
+                    <div class="success-step">
+
+                        <div class="success-step-number">
+                            1
+                        </div>
+
+                        <div>
+                            <strong>Validation</strong>
+
+                            <p>
+                                The system checks the complaint
+                                for suspicious or duplicate content.
+                            </p>
+                        </div>
 
                     </div>
 
-                </div>
+
+                    <div class="success-step">
+
+                        <div class="success-step-number">
+                            2
+                        </div>
+
+                        <div>
+                            <strong>Department Assignment</strong>
+
+                            <p>
+                                Valid complaints are routed to the
+                                appropriate department.
+                            </p>
+                        </div>
+
+                    </div>
 
 
-                <!-- STATUS INFORMATION -->
+                    <div class="success-step">
 
-                {% if status == "Assigned" %}
+                        <div class="success-step-number">
+                            3
+                        </div>
 
-                <div style="
-                    margin-top: 25px;
-                    padding: 18px;
-                    background: #eaf4ff;
-                    border-left: 4px solid #145a9c;
-                    border-radius: 5px;
-                ">
+                        <div>
+                            <strong>Review and Resolution</strong>
 
-                    <strong>
-                        Complaint Assigned
-                    </strong>
+                            <p>
+                                The concerned department reviews
+                                and processes the complaint.
+                            </p>
+                        </div>
 
-                    <p>
-                        Your complaint has passed the initial
-                        screening and has been assigned to the
-                        {{ department }}.
-                    </p>
-
-                </div>
-
-                {% elif status == "Flagged for Review" %}
-
-                <div style="
-                    margin-top: 25px;
-                    padding: 18px;
-                    background: #fff7e6;
-                    border-left: 4px solid #d98b00;
-                    border-radius: 5px;
-                ">
-
-                    <strong>
-                        Complaint Under Validation
-                    </strong>
-
-                    <p>
-                        Your complaint has been flagged for
-                        additional validation before it can be
-                        assigned to a department.
-                    </p>
+                    </div>
 
                 </div>
 
-                {% elif status == "Rejected" %}
-
-                <div style="
-                    margin-top: 25px;
-                    padding: 18px;
-                    background: #fff0f0;
-                    border-left: 4px solid #c62828;
-                    border-radius: 5px;
-                ">
-
-                    <strong>
-                        Complaint Rejected
-                    </strong>
-
-                    <p>
-                        Your complaint did not pass the validation
-                        process and was not assigned to a department.
-                    </p>
-
-                </div>
-
-                {% endif %}
+            </div>
 
 
-                <!-- IMPORTANT MESSAGE -->
+            <!-- ACTION BUTTONS -->
 
-                <div style="
-                    margin-top: 25px;
-                    padding: 18px;
-                    background: #f8fafc;
-                    border-left: 4px solid #145a9c;
-                    border-radius: 5px;
-                ">
+            <div class="success-actions">
 
-                    <strong>
-                        Important
-                    </strong>
+                <a href="/track"
+                   class="btn primary-btn">
 
-                    <p>
-                        Keep your Complaint ID safe. You will need
-                        this ID to track your complaint.
-                    </p>
+                    Track Complaint
 
-                </div>
+                </a>
 
+                <a href="/report"
+                   class="btn secondary-btn">
 
-                <!-- BUTTONS -->
+                    Report Another Issue
 
-                <div class="success-buttons"
-                     style="
-                        display: flex;
-                        justify-content: center;
-                        gap: 15px;
-                        margin-top: 30px;
-                        flex-wrap: wrap;
-                     ">
+                </a>
 
-                    <a href="/"
-                       class="btn primary-btn">
+                <a href="/"
+                   class="cancel-btn">
 
-                        Back to Home
+                    Back to Home
 
-                    </a>
-
-
-                    <a href="/track"
-                       class="btn secondary-btn">
-
-                        Track Complaint
-
-                    </a>
-
-
-                    <a href="/report"
-                       class="btn secondary-btn">
-
-                        Submit Another Complaint
-
-                    </a>
-
-                </div>
+                </a>
 
             </div>
 
@@ -310,7 +233,9 @@
     </main>
 
 
-    <!-- FOOTER -->
+    <!-- ==============================
+         FOOTER
+    =============================== -->
 
     <footer>
 
@@ -318,9 +243,7 @@
 
             <div>
 
-                <h3>
-                    CivicConnect
-                </h3>
+                <h3>CivicConnect</h3>
 
                 <p>
                     Anonymous Civic Complaint Portal

@@ -16,7 +16,9 @@
 
 <body>
 
-    <!-- NAVBAR -->
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
 
     <header class="navbar">
 
@@ -46,11 +48,15 @@
     </header>
 
 
-    <!-- REPORT PAGE -->
+    <!-- ==============================
+         REPORT PAGE
+    =============================== -->
 
     <main class="report-page">
 
         <div class="report-container">
+
+            <!-- PAGE HEADING -->
 
             <div class="report-heading">
 
@@ -59,44 +65,70 @@
                 <h1>Report a Civic Issue</h1>
 
                 <p>
-                    Provide the details of the civic issue below.
-                    No personal information is required.
+                    Help improve your community by reporting a
+                    civic issue. Provide accurate details so that
+                    the concerned department can review the complaint.
                 </p>
 
             </div>
 
 
-            <!-- PRIVACY NOTICE -->
+            <!-- ==============================
+                 PRIVACY NOTICE
+            =============================== -->
 
             <div class="report-privacy">
 
                 <strong>
-                    🔒 Anonymous Reporting
+                    🔒 Privacy Notice
                 </strong>
 
                 <p>
-                    Do not enter your name, phone number, email
-                    address, or other personally identifying
-                    information in this form.
+                    This form does not ask for your name, phone number,
+                    or email address. Please do not include personally
+                    identifying information in your complaint description
+                    or uploaded evidence.
                 </p>
 
             </div>
 
 
-            <!-- COMPLAINT FORM -->
+            <!-- ==============================
+                 ERROR MESSAGE
+            =============================== -->
+
+            {% if error %}
+
+            <div class="track-error">
+
+                {{ error }}
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- ==============================
+                 COMPLAINT FORM
+            =============================== -->
 
             <form class="complaint-form"
                   method="POST"
                   enctype="multipart/form-data">
 
 
-                <!-- CATEGORY -->
+                <!-- ==============================
+                     CATEGORY
+                =============================== -->
 
                 <div class="form-group">
 
                     <label for="category">
+
                         Complaint Category
+
                         <span>*</span>
+
                     </label>
 
                     <select id="category"
@@ -129,34 +161,52 @@
 
                     </select>
 
+                    <small>
+                        Select the category that best describes the issue.
+                    </small>
+
                 </div>
 
 
-                <!-- LOCATION -->
+                <!-- ==============================
+                     LOCATION
+                =============================== -->
 
                 <div class="form-group">
 
                     <label for="location">
+
                         Location
+
                         <span>*</span>
+
                     </label>
 
                     <input type="text"
                            id="location"
                            name="location"
-                           placeholder="Enter the location of the issue"
+                           placeholder="Example: Near Main Road, Bengaluru"
                            required>
+
+                    <small>
+                        Enter the location where the issue occurred.
+                    </small>
 
                 </div>
 
 
-                <!-- DATE -->
+                <!-- ==============================
+                     DATE
+                =============================== -->
 
                 <div class="form-group">
 
                     <label for="date">
+
                         Date of Incident
+
                         <span>*</span>
+
                     </label>
 
                     <input type="date"
@@ -164,36 +214,54 @@
                            name="date"
                            required>
 
+                    <small>
+                        Select the date when the issue was observed.
+                    </small>
+
                 </div>
 
 
-                <!-- DESCRIPTION -->
+                <!-- ==============================
+                     DESCRIPTION
+                =============================== -->
 
                 <div class="form-group">
 
                     <label for="description">
+
                         Complaint Description
+
                         <span>*</span>
+
                     </label>
 
                     <textarea id="description"
                               name="description"
                               rows="7"
-                              placeholder="Describe the civic issue clearly..."
+                              placeholder="Describe the issue clearly. Include relevant details such as what happened, where it happened, and how it affects the public."
                               required></textarea>
+
+                    <small>
+                        Provide clear and factual information about the complaint.
+                    </small>
 
                 </div>
 
 
-                <!-- IMAGE -->
+                <!-- ==============================
+                     IMAGE UPLOAD
+                =============================== -->
 
                 <div class="form-group">
 
                     <label for="image">
+
                         Image Evidence
+
                         <span class="optional">
                             Optional
                         </span>
+
                     </label>
 
                     <input type="file"
@@ -202,21 +270,26 @@
                            accept="image/*">
 
                     <small>
-                        You may upload an image related to the complaint.
+                        Upload an image that helps explain or verify the complaint.
                     </small>
 
                 </div>
 
 
-                <!-- VIDEO -->
+                <!-- ==============================
+                     VIDEO UPLOAD
+                =============================== -->
 
                 <div class="form-group">
 
                     <label for="video">
+
                         Video Evidence
+
                         <span class="optional">
                             Optional
                         </span>
+
                     </label>
 
                     <input type="file"
@@ -225,80 +298,199 @@
                            accept="video/*">
 
                     <small>
-                        You may upload a video related to the complaint.
+                        Upload a video if it provides additional evidence.
                     </small>
 
                 </div>
 
 
-                <!-- BUTTON -->
+                <!-- ==============================
+                     SECURITY CHECK
+                =============================== -->
+
+                <div class="form-group">
+
+                    <label for="captcha">
+
+                        Security Check
+
+                        <span>*</span>
+
+                    </label>
+
+                    <div class="captcha-box">
+
+                        <p>
+                            Please solve:
+                            <strong>
+                                {{ captcha_question }}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                    <input
+                        type="number"
+                        id="captcha"
+                        name="captcha"
+                        placeholder="Enter your answer"
+                        required>
+
+                    <small>
+                        This security check helps prevent automated spam submissions.
+                    </small>
+
+                </div>
+
+
+                <!-- ==============================
+                     SUBMIT SECTION
+                =============================== -->
 
                 <div class="form-submit">
-                    <div class="form-group">
-
-    <label for="captcha">
-        Security Check
-    </label>
-
-    <p>
-        Please solve:
-        <strong>{{ captcha_question }}</strong>
-    </p>
-
-    <input
-        type="number"
-        id="captcha"
-        name="captcha"
-        placeholder="Enter your answer"
-        required>
-
-</div>
-
-{% if error %}
-
-<div class="track-error">
-    {{ error }}
-</div>
-
-{% endif %}
 
                     <button type="submit"
                             class="btn primary-btn">
+
                         Submit Complaint
+
                     </button>
 
                     <a href="/"
                        class="cancel-btn">
+
                         Cancel
+
                     </a>
 
                 </div>
 
+
             </form>
+
+
+            <!-- ==============================
+                 INFORMATION BOX
+            =============================== -->
+
+            <div class="report-info">
+
+                <h3>What happens after submission?</h3>
+
+                <div class="report-steps">
+
+                    <div class="report-step">
+
+                        <div class="step-number">
+                            1
+                        </div>
+
+                        <div>
+
+                            <strong>Complaint Received</strong>
+
+                            <p>
+                                Your complaint is recorded and given
+                                a unique complaint ID.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="report-step">
+
+                        <div class="step-number">
+                            2
+                        </div>
+
+                        <div>
+
+                            <strong>Automatic Validation</strong>
+
+                            <p>
+                                The system checks the complaint for
+                                suspicious or duplicate submissions.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="report-step">
+
+                        <div class="step-number">
+                            3
+                        </div>
+
+                        <div>
+
+                            <strong>Department Assignment</strong>
+
+                            <p>
+                                Valid complaints are routed to the
+                                appropriate civic department.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="report-step">
+
+                        <div class="step-number">
+                            4
+                        </div>
+
+                        <div>
+
+                            <strong>Complaint Tracking</strong>
+
+                            <p>
+                                Use your complaint ID to check the
+                                current status of your complaint.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
     </main>
 
 
-    <!-- FOOTER -->
+    <!-- ==============================
+         FOOTER
+    =============================== -->
 
     <footer>
 
         <div class="footer-container">
 
             <div>
+
                 <h3>CivicConnect</h3>
 
                 <p>
                     Anonymous Civic Complaint Portal
                 </p>
+
             </div>
 
             <div>
+
                 <p>
                     © 2026 CivicConnect. All rights reserved.
                 </p>
+
             </div>
 
         </div>

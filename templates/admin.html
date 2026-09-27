@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Administration Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+
+                <a href="/">
+                    Home
+                </a>
+
+                <a href="/admin-logout">
+                    Logout
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==============================
+         ADMIN DASHBOARD
+    =============================== -->
+
+    <main class="admin-page">
+
+        <div class="admin-container">
+
+
+            <!-- ==============================
+                 PAGE HEADING
+            =============================== -->
+
+            <div class="admin-heading">
+
+                <span>ADMINISTRATION PORTAL</span>
+
+                <h1>
+                    CivicConnect Dashboard
+                </h1>
+
+                <p>
+                    Monitor complaint activity, validation,
+                    department processing and resolution status.
+                </p>
+
+            </div>
+
+
+            <!-- ==============================
+                 STATISTICS
+            =============================== -->
+
+            <div class="admin-stats">
+
+
+                <!-- TOTAL -->
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-label">
+                        Total Complaints
+                    </div>
+
+                    <div class="admin-stat-number">
+                        {{ total }}
+                    </div>
+
+                    <p>
+                        All submitted complaints
+                    </p>
+
+                </div>
+
+
+                <!-- ASSIGNED -->
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-label">
+                        Assigned
+                    </div>
+
+                    <div class="admin-stat-number">
+                        {{ assigned }}
+                    </div>
+
+                    <p>
+                        Waiting for department action
+                    </p>
+
+                </div>
+
+
+                <!-- UNDER REVIEW -->
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-label">
+                        Under Review
+                    </div>
+
+                    <div class="admin-stat-number">
+                        {{ under_review }}
+                    </div>
+
+                    <p>
+                        Currently being investigated
+                    </p>
+
+                </div>
+
+
+                <!-- RESOLVED -->
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-label">
+                        Resolved
+                    </div>
+
+                    <div class="admin-stat-number">
+                        {{ resolved }}
+                    </div>
+
+                    <p>
+                        Successfully completed
+                    </p>
+
+                </div>
+
+
+                <!-- FLAGGED -->
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-label">
+                        Flagged
+                    </div>
+
+                    <div class="admin-stat-number">
+                        {{ flagged }}
+                    </div>
+
+                    <p>
+                        Waiting for validation
+                    </p>
+
+                </div>
+
+
+                <!-- REJECTED -->
+
+                <div class="admin-stat-card">
+
+                    <div class="admin-stat-label">
+                        Rejected
+                    </div>
+
+                    <div class="admin-stat-number">
+                        {{ rejected }}
+                    </div>
+
+                    <p>
+                        Rejected complaints
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 SYSTEM OVERVIEW
+            =============================== -->
+
+            <div class="admin-section">
+
+                <div class="admin-section-heading">
+
+                    <span>
+                        SYSTEM OVERVIEW
+                    </span>
+
+                    <h2>
+                        Complaint Processing
+                    </h2>
+
+                    <p>
+                        Overview of complaints as they move
+                        through the CivicConnect workflow.
+                    </p>
+
+                </div>
+
+
+                <div class="admin-workflow">
+
+                    <div class="admin-workflow-step">
+
+                        <div class="admin-workflow-number">
+                            1
+                        </div>
+
+                        <h3>
+                            Submitted
+                        </h3>
+
+                        <strong>
+                            {{ total }}
+                        </strong>
+
+                        <p>
+                            Complaints received
+                        </p>
+
+                    </div>
+
+
+                    <div class="admin-workflow-arrow">
+                        →
+                    </div>
+
+
+                    <div class="admin-workflow-step">
+
+                        <div class="admin-workflow-number">
+                            2
+                        </div>
+
+                        <h3>
+                            Validation
+                        </h3>
+
+                        <strong>
+                            {{ flagged }}
+                        </strong>
+
+                        <p>
+                            Flagged for review
+                        </p>
+
+                    </div>
+
+
+                    <div class="admin-workflow-arrow">
+                        →
+                    </div>
+
+
+                    <div class="admin-workflow-step">
+
+                        <div class="admin-workflow-number">
+                            3
+                        </div>
+
+                        <h3>
+                            Department
+                        </h3>
+
+                        <strong>
+                            {{ assigned + under_review }}
+                        </strong>
+
+                        <p>
+                            Being processed
+                        </p>
+
+                    </div>
+
+
+                    <div class="admin-workflow-arrow">
+                        →
+                    </div>
+
+
+                    <div class="admin-workflow-step">
+
+                        <div class="admin-workflow-number">
+                            4
+                        </div>
+
+                        <h3>
+                            Resolved
+                        </h3>
+
+                        <strong>
+                            {{ resolved }}
+                        </strong>
+
+                        <p>
+                            Issues completed
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 DEPARTMENT SUMMARY
+            =============================== -->
+
+            <div class="admin-section">
+
+                <div class="admin-section-heading">
+
+                    <span>
+                        DEPARTMENT OVERVIEW
+                    </span>
+
+                    <h2>
+                        Complaints by Department
+                    </h2>
+
+                    <p>
+                        Number of complaints currently associated
+                        with each department.
+                    </p>
+
+                </div>
+
+
+                <div class="department-summary-table">
+
+                    {% if department_summary %}
+
+                        {% for department, count in department_summary.items() %}
+
+                        <div class="department-summary-row">
+
+                            <div class="department-summary-name">
+
+                                <strong>
+                                    {{ department }}
+                                </strong>
+
+                            </div>
+
+                            <div class="department-summary-count">
+
+                                {{ count }}
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="admin-empty">
+
+                            No department data available.
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 RECENT COMPLAINTS
+            =============================== -->
+
+            <div class="admin-section">
+
+                <div class="admin-section-heading">
+
+                    <span>
+                        RECENT ACTIVITY
+                    </span>
+
+                    <h2>
+                        Recent Complaints
+                    </h2>
+
+                    <p>
+                        Recently submitted complaints in the
+                        CivicConnect system.
+                    </p>
+
+                </div>
+
+
+                {% if recent_complaints %}
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Complaint ID
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Location
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for complaint in recent_complaints %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ complaint["complaint_id"] }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ complaint["category"] }}
+                                </td>
+
+                                <td>
+                                    {{ complaint["department"] }}
+                                </td>
+
+                                <td>
+                                    {{ complaint["location"] }}
+                                </td>
+
+                                <td>
+
+                                    <span class="admin-status
+                                        {% if complaint['status'] == 'Assigned' %}
+                                            status-assigned
+                                        {% elif complaint['status'] == 'Under Review' %}
+                                            status-review
+                                        {% elif complaint['status'] == 'Resolved' %}
+                                            status-resolved
+                                        {% elif complaint['status'] == 'Flagged for Review' %}
+                                            status-flagged
+                                        {% elif complaint['status'] == 'Rejected' %}
+                                            status-rejected
+                                        {% endif %}">
+
+                                        {{ complaint["status"] }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <div class="admin-empty">
+
+                    <div class="no-complaints-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        No Complaints Yet
+                    </h3>
+
+                    <p>
+                        No complaints have been submitted
+                        to the CivicConnect system.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ==============================
+                 ADMIN RESPONSIBILITIES
+            =============================== -->
+
+            <div class="admin-section">
+
+                <div class="admin-section-heading">
+
+                    <span>
+                        ADMINISTRATION
+                    </span>
+
+                    <h2>
+                        System Monitoring
+                    </h2>
+
+                </div>
+
+
+                <div class="admin-monitor-grid">
+
+
+                    <div class="admin-monitor-card">
+
+                        <div class="admin-monitor-icon">
+                            ✓
+                        </div>
+
+                        <h3>
+                            Complaint Monitoring
+                        </h3>
+
+                        <p>
+                            Monitor the overall number and
+                            status of civic complaints.
+                        </p>
+
+                    </div>
+
+
+                    <div class="admin-monitor-card">
+
+                        <div class="admin-monitor-icon">
+                            !
+                        </div>
+
+                        <h3>
+                            Validation Monitoring
+                        </h3>
+
+                        <p>
+                            Track complaints that have been
+                            flagged for manual validation.
+                        </p>
+
+                    </div>
+
+
+                    <div class="admin-monitor-card">
+
+                        <div class="admin-monitor-icon">
+                            ↗
+                        </div>
+
+                        <h3>
+                            Department Monitoring
+                        </h3>
+
+                        <p>
+                            Observe how complaints are being
+                            processed by different departments.
+                        </p>
+
+                    </div>
+
+
+                    <div class="admin-monitor-card">
+
+                        <div class="admin-monitor-icon">
+                            ✓
+                        </div>
+
+                        <h3>
+                            Resolution Monitoring
+                        </h3>
+
+                        <p>
+                            Track complaints that have reached
+                            the resolved stage.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 LOGOUT
+            =============================== -->
+
+            <div class="admin-footer">
+
+                <a href="/admin-logout"
+                   class="cancel-btn">
+
+                    Logout from Admin Portal
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>
+                    CivicConnect
+                </h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

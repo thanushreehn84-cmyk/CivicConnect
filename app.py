@@ -40,7 +40,10 @@ ALLOWED_VIDEO_EXTENSIONS = {
 
 MAX_FILE_SIZE = 50 * 1024 * 1024
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
 
 
 # ==============================
@@ -65,6 +68,10 @@ def get_db_connection():
 def create_database():
 
     connection = get_db_connection()
+
+    # ==============================
+    # COMPLAINTS TABLE
+    # ==============================
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS complaints (
@@ -98,6 +105,28 @@ def create_database():
         )
     """)
 
+    # ==============================
+    # COMPLAINT HISTORY TABLE
+    # ==============================
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS complaint_history (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            complaint_id TEXT NOT NULL,
+
+            status TEXT NOT NULL,
+
+            timestamp TEXT NOT NULL,
+
+            changed_by TEXT,
+
+            remarks TEXT
+
+        )
+    """)
+
     connection.commit()
 
     connection.close()
@@ -110,6 +139,10 @@ def create_database():
 def upgrade_database():
 
     connection = get_db_connection()
+
+    # ==============================
+    # CHECK COMPLAINT COLUMNS
+    # ==============================
 
     columns = connection.execute(
         "PRAGMA table_info(complaints)"
@@ -144,6 +177,67 @@ def upgrade_database():
                 ADD COLUMN {column} {datatype}
                 """
             )
+
+    # ==============================
+    # MAKE SURE HISTORY TABLE EXISTS
+    # ==============================
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS complaint_history (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            complaint_id TEXT NOT NULL,
+
+            status TEXT NOT NULL,
+
+            timestamp TEXT NOT NULL,
+
+            changed_by TEXT,
+
+            remarks TEXT
+
+        )
+    """)
+
+    connection.commit()
+
+    connection.close()
+
+
+# ==============================
+# COMPLAINT HISTORY
+# ==============================
+
+def add_history(
+    complaint_id,
+    status,
+    changed_by="System",
+    remarks=""
+):
+
+    connection = get_db_connection()
+
+    connection.execute(
+        """
+        INSERT INTO complaint_history
+        (
+            complaint_id,
+            status,
+            timestamp,
+            changed_by,
+            remarks
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (
+            complaint_id,
+            status,
+            datetime.now().isoformat(),
+            changed_by,
+            remarks
+        )
+    )
 
     connection.commit()
 
@@ -401,8 +495,6 @@ def is_spam(description):
 
             return True
 
-    # Detect repeated characters
-
     if re.search(
         r"(.)\1{6,}",
         description_lower
@@ -572,10 +664,6 @@ def report():
 
     if request.method == "POST":
 
-        # --------------------------
-        # GET FORM DATA
-        # --------------------------
-
         category = request.form.get(
             "category",
             ""
@@ -609,10 +697,9 @@ def report():
             "video"
         )
 
-
-        # --------------------------
+        # ==============================
         # CAPTCHA
-        # --------------------------
+        # ==============================
 
         correct_captcha = session.get(
             "captcha_answer"
@@ -648,10 +735,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # CATEGORY
-        # --------------------------
+        # ==============================
 
         valid_categories = [
 
@@ -682,10 +768,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # LOCATION
-        # --------------------------
+        # ==============================
 
         if not validate_location(
             location
@@ -706,10 +791,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # DATE
-        # --------------------------
+        # ==============================
 
         if not validate_date(
             date
@@ -731,10 +815,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # DESCRIPTION
-        # --------------------------
+        # ==============================
 
         if not validate_description(
             description
@@ -756,10 +839,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # IMAGE
-        # --------------------------
+        # ==============================
 
         if not validate_image(
             image
@@ -781,10 +863,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # VIDEO
-        # --------------------------
+        # ==============================
 
         if not validate_video(
             video
@@ -806,10 +887,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # RATE LIMIT
-        # --------------------------
+        # ==============================
 
         if not check_submission_rate():
 
@@ -829,10 +909,9 @@ def report():
                 )
             )
 
-
-        # --------------------------
+        # ==============================
         # DUPLICATE
-        # --------------------------
+        # ==============================
 
         duplicate = find_duplicate(
             category,
@@ -840,24 +919,21 @@ def report():
             description
         )
 
-
-        # --------------------------
+        # ==============================
         # SPAM
-        # --------------------------
+        # ==============================
 
         spam = is_spam(
             description
         )
 
-
-        # --------------------------
+        # ==============================
         # SUSPICION SCORE
-        # --------------------------
+        # ==============================
 
         suspicion_score = 0
 
         validation_messages = []
-
 
         if duplicate:
 
@@ -867,7 +943,6 @@ def report():
                 "Possible duplicate complaint."
             )
 
-
         if spam:
 
             suspicion_score += 40
@@ -875,10 +950,6 @@ def report():
             validation_messages.append(
                 "Possible spam content."
             )
-
-
-        # Lack of evidence is NOT
-        # treated as a false complaint.
 
         if (
             not image
@@ -891,10 +962,9 @@ def report():
                 "No supporting evidence provided."
             )
 
-
-        # --------------------------
+        # ==============================
         # STATUS
-        # --------------------------
+        # ==============================
 
         if suspicion_score >= 50:
 
@@ -904,10 +974,9 @@ def report():
 
             status = "Assigned"
 
-
-        # --------------------------
+        # ==============================
         # COMPLAINT ID
-        # --------------------------
+        # ==============================
 
         connection = (
             get_db_connection()
@@ -938,19 +1007,17 @@ def report():
 
                 break
 
-
-        # --------------------------
+        # ==============================
         # DEPARTMENT
-        # --------------------------
+        # ==============================
 
         department = get_department(
             category
         )
 
-
-        # --------------------------
+        # ==============================
         # SAVE FILES
-        # --------------------------
+        # ==============================
 
         image_path = save_file(
             image,
@@ -962,10 +1029,9 @@ def report():
             complaint_id
         )
 
-
-        # --------------------------
+        # ==============================
         # VALIDATION MESSAGE
-        # --------------------------
+        # ==============================
 
         if validation_messages:
 
@@ -981,10 +1047,9 @@ def report():
                 "to the concerned department."
             )
 
-
-        # --------------------------
+        # ==============================
         # SAVE COMPLAINT
-        # --------------------------
+        # ==============================
 
         connection.execute(
             """
@@ -1025,24 +1090,67 @@ def report():
 
         connection.close()
 
+        # ==============================
+        # COMPLAINT HISTORY
+        # ==============================
 
-        # --------------------------
+        add_history(
+            complaint_id,
+            "Complaint Submitted",
+            "Citizen",
+            "Complaint submitted successfully."
+        )
+
+        # ==============================
+        # AUTOMATIC VALIDATION HISTORY
+        # ==============================
+
+        if status == "Flagged for Review":
+
+            add_history(
+                complaint_id,
+                "Flagged for Review",
+                "Automatic Validation",
+                validation_message
+            )
+
+        else:
+
+            add_history(
+                complaint_id,
+                "Automatically Validated",
+                "Automatic Validation",
+                validation_message
+            )
+
+            # ==============================
+            # ASSIGNMENT HISTORY
+            # ==============================
+
+            add_history(
+                complaint_id,
+                "Assigned",
+                "System",
+                "Assigned to "
+                + department
+                + "."
+            )
+
+        # ==============================
         # RECORD SUBMISSION
-        # --------------------------
+        # ==============================
 
         record_submission()
 
-
-        # --------------------------
+        # ==============================
         # NEW CAPTCHA
-        # --------------------------
+        # ==============================
 
         generate_captcha()
 
-
-        # --------------------------
+        # ==============================
         # SUCCESS
-        # --------------------------
+        # ==============================
 
         return render_template(
             "success.html",
@@ -1052,7 +1160,6 @@ def report():
             status=status,
             validation_message=validation_message
         )
-
 
     # ==============================
     # GET REPORT PAGE
@@ -1080,13 +1187,16 @@ def track():
 
     complaint = None
 
+    history = []
+
     error = None
 
     if request.method == "POST":
 
-        complaint_id = request.form[
-            "complaint_id"
-        ].strip().upper()
+        complaint_id = request.form.get(
+            "complaint_id",
+            ""
+        ).strip().upper()
 
         connection = (
             get_db_connection()
@@ -1101,6 +1211,18 @@ def track():
             (complaint_id,)
         ).fetchone()
 
+        if complaint is not None:
+
+            history = connection.execute(
+                """
+                SELECT *
+                FROM complaint_history
+                WHERE complaint_id = ?
+                ORDER BY id ASC
+                """,
+                (complaint_id,)
+            ).fetchall()
+
         connection.close()
 
         if complaint is None:
@@ -1109,10 +1231,10 @@ def track():
                 "Complaint ID not found."
             )
 
-
     return render_template(
         "track.html",
         complaint=complaint,
+        history=history,
         error=error
     )
 
@@ -1131,13 +1253,15 @@ def validator_login():
 
     if request.method == "POST":
 
-        username = request.form[
-            "username"
-        ]
+        username = request.form.get(
+            "username",
+            ""
+        )
 
-        password = request.form[
-            "password"
-        ]
+        password = request.form.get(
+            "password",
+            ""
+        )
 
         if (
             username == "validator"
@@ -1157,7 +1281,6 @@ def validator_login():
             error = (
                 "Invalid username or password."
             )
-
 
     return render_template(
         "validator_login.html",
@@ -1179,7 +1302,6 @@ def validator():
         return redirect(
             "/validator-login"
         )
-
 
     connection = (
         get_db_connection()
@@ -1225,26 +1347,36 @@ def validate_complaint(
             "/validator-login"
         )
 
-
     connection = (
         get_db_connection()
     )
 
-    connection.execute(
+    result = connection.execute(
         """
         UPDATE complaints
         SET status = ?
         WHERE complaint_id = ?
+        AND status = ?
         """,
         (
             "Assigned",
-            complaint_id
+            complaint_id,
+            "Flagged for Review"
         )
     )
 
     connection.commit()
 
     connection.close()
+
+    if result.rowcount > 0:
+
+        add_history(
+            complaint_id,
+            "Assigned",
+            "Validator",
+            "Complaint validated and assigned to the concerned department."
+        )
 
     return redirect(
         "/validator"
@@ -1271,26 +1403,36 @@ def reject_complaint(
             "/validator-login"
         )
 
-
     connection = (
         get_db_connection()
     )
 
-    connection.execute(
+    result = connection.execute(
         """
         UPDATE complaints
         SET status = ?
         WHERE complaint_id = ?
+        AND status = ?
         """,
         (
             "Rejected",
-            complaint_id
+            complaint_id,
+            "Flagged for Review"
         )
     )
 
     connection.commit()
 
     connection.close()
+
+    if result.rowcount > 0:
+
+        add_history(
+            complaint_id,
+            "Rejected",
+            "Validator",
+            "Complaint rejected during validation."
+        )
 
     return redirect(
         "/validator"
@@ -1316,9 +1458,98 @@ def validator_logout():
     )
 
 
-# ==============================
+# ==================================================
+# DEPARTMENT LOGIN
+# ==================================================
+
+@app.route(
+    "/department-login",
+    methods=["GET", "POST"]
+)
+def department_login():
+
+    error = None
+
+    department_users = {
+
+        "Municipality": {
+            "username": "municipality",
+            "password": "municipality123"
+        },
+
+        "Pollution Control": {
+            "username": "pollution",
+            "password": "pollution123"
+        },
+
+        "Traffic Department": {
+            "username": "traffic",
+            "password": "traffic123"
+        },
+
+        "Police": {
+            "username": "police",
+            "password": "police123"
+        }
+
+    }
+
+    if request.method == "POST":
+
+        department = request.form.get(
+            "department",
+            ""
+        ).strip()
+
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        if (
+            department in department_users
+            and username
+            == department_users[
+                department
+            ]["username"]
+            and password
+            == department_users[
+                department
+            ]["password"]
+        ):
+
+            session[
+                "department_logged_in"
+            ] = True
+
+            session[
+                "department"
+            ] = department
+
+            return redirect(
+                "/department/"
+                + department
+            )
+
+        error = (
+            "Invalid department, "
+            "username or password."
+        )
+
+    return render_template(
+        "department_login.html",
+        error=error
+    )
+
+
+# ==================================================
 # DEPARTMENT DASHBOARD
-# ==============================
+# ==================================================
 
 @app.route(
     "/department/<department>"
@@ -1327,8 +1558,22 @@ def department_dashboard(
     department
 ):
 
-    # Temporary department access.
-    # Authentication can be added later.
+    if not session.get(
+        "department_logged_in"
+    ):
+
+        return redirect(
+            "/department-login"
+        )
+
+    if session.get(
+        "department"
+    ) != department:
+
+        return redirect(
+            "/department/"
+            + session.get("department")
+        )
 
     connection = (
         get_db_connection()
@@ -1358,9 +1603,9 @@ def department_dashboard(
     )
 
 
-# ==============================
+# ==================================================
 # START REVIEW
-# ==============================
+# ==================================================
 
 @app.route(
     "/department/review/<complaint_id>",
@@ -1370,20 +1615,34 @@ def start_review(
     complaint_id
 ):
 
+    if not session.get(
+        "department_logged_in"
+    ):
+
+        return redirect(
+            "/department-login"
+        )
+
+    department = session.get(
+        "department"
+    )
+
     connection = (
         get_db_connection()
     )
 
-    connection.execute(
+    result = connection.execute(
         """
         UPDATE complaints
         SET status = ?
         WHERE complaint_id = ?
+        AND department = ?
         AND status = ?
         """,
         (
             "Under Review",
             complaint_id,
+            department,
             "Assigned"
         )
     )
@@ -1392,15 +1651,24 @@ def start_review(
 
     connection.close()
 
+    if result.rowcount > 0:
+
+        add_history(
+            complaint_id,
+            "Under Review",
+            department,
+            "Department started reviewing the complaint."
+        )
+
     return redirect(
-        request.referrer
-        or "/"
+        "/department/"
+        + department
     )
 
 
-# ==============================
+# ==================================================
 # MARK RESOLVED
-# ==============================
+# ==================================================
 
 @app.route(
     "/department/resolve/<complaint_id>",
@@ -1410,20 +1678,34 @@ def resolve_complaint(
     complaint_id
 ):
 
+    if not session.get(
+        "department_logged_in"
+    ):
+
+        return redirect(
+            "/department-login"
+        )
+
+    department = session.get(
+        "department"
+    )
+
     connection = (
         get_db_connection()
     )
 
-    connection.execute(
+    result = connection.execute(
         """
         UPDATE complaints
         SET status = ?
         WHERE complaint_id = ?
+        AND department = ?
         AND status = ?
         """,
         (
             "Resolved",
             complaint_id,
+            department,
             "Under Review"
         )
     )
@@ -1432,9 +1714,221 @@ def resolve_complaint(
 
     connection.close()
 
+    if result.rowcount > 0:
+
+        add_history(
+            complaint_id,
+            "Resolved",
+            department,
+            "Complaint resolved by department."
+        )
+
     return redirect(
-        request.referrer
-        or "/"
+        "/department/"
+        + department
+    )
+
+
+# ==================================================
+# DEPARTMENT LOGOUT
+# ==================================================
+
+@app.route(
+    "/department-logout"
+)
+def department_logout():
+
+    session.pop(
+        "department_logged_in",
+        None
+    )
+
+    session.pop(
+        "department",
+        None
+    )
+
+    return redirect(
+        "/department-login"
+    )
+
+
+# ==================================================
+# ADMIN LOGIN
+# ==================================================
+
+@app.route(
+    "/admin-login",
+    methods=["GET", "POST"]
+)
+def admin_login():
+
+    error = None
+
+    if request.method == "POST":
+
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        if (
+            username == "admin"
+            and password == "admin123"
+        ):
+
+            session[
+                "admin_logged_in"
+            ] = True
+
+            return redirect(
+                "/admin"
+            )
+
+        else:
+
+            error = (
+                "Invalid username or password."
+            )
+
+    return render_template(
+        "admin_login.html",
+        error=error
+    )
+
+
+# ==================================================
+# ADMIN DASHBOARD
+# ==================================================
+
+@app.route("/admin")
+def admin_dashboard():
+
+    if not session.get(
+        "admin_logged_in"
+    ):
+
+        return redirect(
+            "/admin-login"
+        )
+
+    connection = (
+        get_db_connection()
+    )
+
+    total = connection.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM complaints
+        """
+    ).fetchone()["count"]
+
+    assigned = connection.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM complaints
+        WHERE status = ?
+        """,
+        ("Assigned",)
+    ).fetchone()["count"]
+
+    under_review = connection.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM complaints
+        WHERE status = ?
+        """,
+        ("Under Review",)
+    ).fetchone()["count"]
+
+    resolved = connection.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM complaints
+        WHERE status = ?
+        """,
+        ("Resolved",)
+    ).fetchone()["count"]
+
+    flagged = connection.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM complaints
+        WHERE status = ?
+        """,
+        ("Flagged for Review",)
+    ).fetchone()["count"]
+
+    rejected = connection.execute(
+        """
+        SELECT COUNT(*) AS count
+        FROM complaints
+        WHERE status = ?
+        """,
+        ("Rejected",)
+    ).fetchone()["count"]
+
+    department_summary = connection.execute(
+        """
+        SELECT
+            department,
+            COUNT(*) AS count
+        FROM complaints
+        GROUP BY department
+        ORDER BY count DESC
+        """
+    ).fetchall()
+
+    recent_complaints = connection.execute(
+        """
+        SELECT
+            complaint_id,
+            category,
+            department,
+            status,
+            date
+        FROM complaints
+        ORDER BY id DESC
+        LIMIT 10
+        """
+    ).fetchall()
+
+    connection.close()
+
+    return render_template(
+        "admin.html",
+        total=total,
+        assigned=assigned,
+        under_review=under_review,
+        resolved=resolved,
+        flagged=flagged,
+        rejected=rejected,
+        department_summary=department_summary,
+        recent_complaints=recent_complaints
+    )
+
+
+# ==================================================
+# ADMIN LOGOUT
+# ==================================================
+
+@app.route(
+    "/admin-logout"
+)
+def admin_logout():
+
+    session.pop(
+        "admin_logged_in",
+        None
+    )
+
+    return redirect(
+        "/admin-login"
     )
 
 

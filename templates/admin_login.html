@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Validator Login | CivicConnect</title>
+    <title>Admin Login | CivicConnect</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -39,9 +39,19 @@
             </div>
 
             <nav>
-                <a href="/">Home</a>
-                <a href="/#how-it-works">How It Works</a>
-                <a href="/#about">About</a>
+
+                <a href="/">
+                    Home
+                </a>
+
+                <a href="/#how-it-works">
+                    How It Works
+                </a>
+
+                <a href="/#about">
+                    About
+                </a>
+
             </nav>
 
         </div>
@@ -50,7 +60,7 @@
 
 
     <!-- ==============================
-         LOGIN PAGE
+         ADMIN LOGIN
     =============================== -->
 
     <main class="login-page">
@@ -62,7 +72,7 @@
                 <!-- ICON -->
 
                 <div class="login-icon">
-                    ✓
+                    A
                 </div>
 
 
@@ -70,15 +80,15 @@
 
                 <div class="login-heading">
 
-                    <span>VALIDATOR PORTAL</span>
+                    <span>ADMINISTRATION PORTAL</span>
 
                     <h1>
-                        Validator Login
+                        Admin Login
                     </h1>
 
                     <p>
-                        Access the complaint validation
-                        dashboard to review flagged submissions.
+                        Access the CivicConnect administration
+                        dashboard and monitor complaint activity.
                     </p>
 
                 </div>
@@ -89,7 +99,9 @@
                 {% if error %}
 
                 <div class="login-error">
+
                     {{ error }}
+
                 </div>
 
                 {% endif %}
@@ -109,7 +121,7 @@
                             type="text"
                             id="username"
                             name="username"
-                            placeholder="Enter validator username"
+                            placeholder="Enter admin username"
                             required>
 
                     </div>
@@ -125,7 +137,7 @@
                             type="password"
                             id="password"
                             name="password"
-                            placeholder="Enter validator password"
+                            placeholder="Enter admin password"
                             required>
 
                     </div>
@@ -134,7 +146,7 @@
                     <button type="submit"
                             class="btn primary-btn">
 
-                        Login to Validator Portal
+                        Login to Admin Portal
 
                     </button>
 
@@ -168,13 +180,16 @@
 
             <div>
 
-                <h3>CivicConnect</h3>
+                <h3>
+                    CivicConnect
+                </h3>
 
                 <p>
                     Anonymous Civic Complaint Portal
                 </p>
 
             </div>
+
 
             <div>
 

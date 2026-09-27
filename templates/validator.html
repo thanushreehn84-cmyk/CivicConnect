@@ -17,6 +17,10 @@
 
 <body>
 
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
+
     <header class="navbar">
 
         <div class="nav-container">
@@ -29,13 +33,14 @@
 
                 <div>
                     <h2>CivicConnect</h2>
-                    <span>Validator Dashboard</span>
+                    <span>Validator Portal</span>
                 </div>
 
             </div>
 
             <nav>
                 <a href="/">Home</a>
+                <a href="/validator-logout">Logout</a>
             </nav>
 
         </div>
@@ -43,150 +48,378 @@
     </header>
 
 
-    <main class="track-page">
+    <!-- ==============================
+         VALIDATOR DASHBOARD
+    =============================== -->
 
-        <div class="track-container">
+    <main class="validator-page">
 
-            <div class="track-heading">
+        <div class="validator-container">
 
-                <span>ADMIN VALIDATION</span>
+            <!-- PAGE HEADING -->
 
-                <h1>Complaint Validation</h1>
+            <div class="validator-heading">
+
+                <span>VALIDATOR PORTAL</span>
+
+                <h1>
+                    Complaint Validation Dashboard
+                </h1>
 
                 <p>
-                    Review submitted complaints before they
-                    are forwarded to the concerned department.
+                    Review complaints that were automatically
+                    flagged by the CivicConnect validation system.
                 </p>
 
             </div>
 
 
-            {% if complaints %}
+            <!-- ==============================
+                 INFORMATION BANNER
+            =============================== -->
 
-                {% for complaint in complaints %}
+            <div class="validator-info">
 
-                <div class="track-result">
+                <div class="validator-info-icon">
+                    !
+                </div>
 
-                    <div class="track-result-header">
+                <div>
 
-                        <div>
+                    <strong>
+                        Complaints Requiring Review
+                    </strong>
 
-                            <span>COMPLAINT ID</span>
+                    <p>
+                        These complaints were flagged because
+                        they may contain suspicious or duplicate
+                        content. Review the available information
+                        before making a decision.
+                    </p>
 
-                            <h2>
-                                {{ complaint["complaint_id"] }}
-                            </h2>
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 COMPLAINT COUNT
+            =============================== -->
+
+            <div class="validator-summary">
+
+                <div class="validator-summary-card">
+
+                    <span>
+                        Flagged Complaints
+                    </span>
+
+                    <strong>
+                        {{ complaints|length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 COMPLAINT LIST
+            =============================== -->
+
+            <div class="validator-list">
+
+                {% if complaints %}
+
+                    {% for complaint in complaints %}
+
+                    <div class="validator-card">
+
+                        <!-- CARD HEADER -->
+
+                        <div class="validator-card-header">
+
+                            <div>
+
+                                <span class="complaint-label">
+                                    COMPLAINT ID
+                                </span>
+
+                                <h2>
+                                    {{ complaint["complaint_id"] }}
+                                </h2>
+
+                            </div>
+
+                            <div class="flagged-badge">
+                                Flagged for Review
+                            </div>
 
                         </div>
 
-                        <div class="track-status">
-                            {{ complaint["status"] }}
+
+                        <!-- COMPLAINT DETAILS -->
+
+                        <div class="validator-details">
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Category
+                                </span>
+
+                                <strong>
+                                    {{ complaint["category"] }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Department
+                                </span>
+
+                                <strong>
+                                    {{ complaint["department"] }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Location
+                                </span>
+
+                                <strong>
+                                    {{ complaint["location"] }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Date
+                                </span>
+
+                                <strong>
+                                    {{ complaint["date"] }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="validator-description">
+
+                            <span>
+                                Complaint Description
+                            </span>
+
+                            <p>
+                                {{ complaint["description"] }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- EVIDENCE -->
+
+                        {% if complaint["image"] or complaint["video"] %}
+
+                        <div class="validator-evidence">
+
+                            <strong>
+                                Evidence
+                            </strong>
+
+                            <div class="evidence-links">
+
+                                {% if complaint["image"] %}
+
+                                <a href="/uploads/{{ complaint['image'] }}"
+                                   target="_blank"
+                                   class="evidence-link">
+
+                                    View Image
+
+                                </a>
+
+                                {% endif %}
+
+
+                                {% if complaint["video"] %}
+
+                                <a href="/uploads/{{ complaint['video'] }}"
+                                   target="_blank"
+                                   class="evidence-link">
+
+                                    View Video
+
+                                </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <!-- VALIDATOR ACTIONS -->
+
+                        <div class="validator-actions">
+
+                            <a href="/validate/{{ complaint['complaint_id'] }}"
+                               class="btn primary-btn"
+                               onclick="return confirm('Validate this complaint and assign it to the concerned department?');">
+
+                                ✓ Validate Complaint
+
+                            </a>
+
+
+                            <a href="/reject/{{ complaint['complaint_id'] }}"
+                               class="btn reject-btn"
+                               onclick="return confirm('Are you sure you want to reject this complaint?');">
+
+                                ✕ Reject Complaint
+
+                            </a>
+
                         </div>
 
                     </div>
 
+                    {% endfor %}
 
-                    <div class="track-details">
 
-                        <div>
-                            <span>Category</span>
+                {% else %}
 
-                            <strong>
-                                {{ complaint["category"] }}
-                            </strong>
+                    <!-- NO FLAGGED COMPLAINTS -->
+
+                    <div class="no-complaints">
+
+                        <div class="no-complaints-icon">
+                            ✓
                         </div>
 
-                        <div>
-                            <span>Location</span>
-
-                            <strong>
-                                {{ complaint["location"] }}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Date</span>
-
-                            <strong>
-                                {{ complaint["date"] }}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Department</span>
-
-                            <strong>
-                                {{ complaint["department"] }}
-                            </strong>
-                        </div>
-
-                    </div>
-
-
-                    <div class="track-description">
-
-                        <span>Complaint Description</span>
+                        <h2>
+                            No Complaints Require Review
+                        </h2>
 
                         <p>
-                            {{ complaint["description"] }}
+                            There are currently no complaints
+                            waiting for validator review.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ==============================
+                 VALIDATOR PROCESS
+            =============================== -->
+
+            <div class="validator-process">
+
+                <h2>
+                    Validation Process
+                </h2>
+
+                <div class="validator-process-grid">
+
+                    <div class="process-card">
+
+                        <div class="process-number">
+                            1
+                        </div>
+
+                        <h3>
+                            Review
+                        </h3>
+
+                        <p>
+                            Examine the complaint details,
+                            location, description and evidence.
                         </p>
 
                     </div>
 
 
-                    <div class="success-buttons">
+                    <div class="process-card">
 
-                        <form method="POST"
-                              action="/validate/{{ complaint['complaint_id'] }}">
+                        <div class="process-number">
+                            2
+                        </div>
 
-                            <button type="submit"
-                                    class="btn primary-btn">
+                        <h3>
+                            Validate
+                        </h3>
 
-                                ✓ Validate Complaint
+                        <p>
+                            Approve legitimate complaints so
+                            they can be assigned to a department.
+                        </p>
 
-                            </button>
-
-                        </form>
+                    </div>
 
 
-                        <form method="POST"
-                              action="/reject/{{ complaint['complaint_id'] }}">
+                    <div class="process-card">
 
-                            <button type="submit"
-                                    class="btn secondary-btn">
+                        <div class="process-number">
+                            3
+                        </div>
 
-                                ✕ Reject Complaint
+                        <h3>
+                            Reject
+                        </h3>
 
-                            </button>
-
-                        </form>
+                        <p>
+                            Reject complaints that are determined
+                            to be invalid or inappropriate.
+                        </p>
 
                     </div>
 
                 </div>
 
-                {% endfor %}
+            </div>
 
-            {% else %}
 
-                <div class="track-result">
+            <!-- LOGOUT -->
 
-                    <h2>
-                        No complaints pending validation
-                    </h2>
+            <div class="validator-footer">
 
-                    <p>
-                        All submitted complaints have been reviewed.
-                    </p>
+                <a href="/validator-logout"
+                   class="cancel-btn">
 
-                </div>
+                    Logout from Validator Portal
 
-            {% endif %}
+                </a>
+
+            </div>
 
         </div>
 
     </main>
 
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
 
     <footer>
 

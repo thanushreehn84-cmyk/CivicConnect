@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Department Dashboard | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Department Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+
+                <a href="/">
+                    Home
+                </a>
+
+                <a href="/department-logout">
+                    Logout
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==============================
+         DEPARTMENT DASHBOARD
+    =============================== -->
+
+    <main class="department-page">
+
+        <div class="department-container">
+
+
+            <!-- ==============================
+                 PAGE HEADING
+            =============================== -->
+
+            <div class="department-heading">
+
+                <span>DEPARTMENT PORTAL</span>
+
+                <h1>
+                    {{ department }}
+                </h1>
+
+                <p>
+                    View, review and resolve civic complaints
+                    assigned to your department.
+                </p>
+
+            </div>
+
+
+            <!-- ==============================
+                 SUMMARY
+            =============================== -->
+
+            <div class="department-summary">
+
+
+                <!-- TOTAL -->
+
+                <div class="department-summary-card">
+
+                    <span>
+                        Total Complaints
+                    </span>
+
+                    <strong>
+                        {{ complaints|length }}
+                    </strong>
+
+                </div>
+
+
+                <!-- ASSIGNED -->
+
+                <div class="department-summary-card">
+
+                    <span>
+                        Assigned
+                    </span>
+
+                    <strong>
+                        {{ complaints
+                           |selectattr("status", "equalto", "Assigned")
+                           |list
+                           |length }}
+                    </strong>
+
+                </div>
+
+
+                <!-- UNDER REVIEW -->
+
+                <div class="department-summary-card">
+
+                    <span>
+                        Under Review
+                    </span>
+
+                    <strong>
+                        {{ complaints
+                           |selectattr("status", "equalto", "Under Review")
+                           |list
+                           |length }}
+                    </strong>
+
+                </div>
+
+
+                <!-- RESOLVED -->
+
+                <div class="department-summary-card">
+
+                    <span>
+                        Resolved
+                    </span>
+
+                    <strong>
+                        {{ complaints
+                           |selectattr("status", "equalto", "Resolved")
+                           |list
+                           |length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 INFORMATION
+            =============================== -->
+
+            <div class="department-info">
+
+                <div class="department-info-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        Department Responsibilities
+                    </strong>
+
+                    <p>
+                        Review complaints assigned to your department,
+                        investigate the reported issue and update the
+                        complaint status as work progresses.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 COMPLAINT LIST
+            =============================== -->
+
+            <div class="department-section">
+
+                <div class="section-title">
+
+                    <div>
+
+                        <span>
+                            ASSIGNED COMPLAINTS
+                        </span>
+
+                        <h2>
+                            Complaint Queue
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                {% if complaints %}
+
+
+                    <div class="department-list">
+
+
+                        {% for complaint in complaints %}
+
+
+                        <div class="department-card">
+
+
+                            <!-- CARD HEADER -->
+
+                            <div class="department-card-header">
+
+                                <div>
+
+                                    <span class="complaint-label">
+                                        COMPLAINT ID
+                                    </span>
+
+                                    <h2>
+                                        {{ complaint["complaint_id"] }}
+                                    </h2>
+
+                                </div>
+
+
+                                <div class="department-status
+                                    {% if complaint['status'] == 'Assigned' %}
+                                        status-assigned
+                                    {% elif complaint['status'] == 'Under Review' %}
+                                        status-review
+                                    {% elif complaint['status'] == 'Resolved' %}
+                                        status-resolved
+                                    {% elif complaint['status'] == 'Rejected' %}
+                                        status-rejected
+                                    {% endif %}">
+
+                                    {{ complaint["status"] }}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- DETAILS -->
+
+                            <div class="department-details">
+
+
+                                <div class="department-detail">
+
+                                    <span>
+                                        Category
+                                    </span>
+
+                                    <strong>
+                                        {{ complaint["category"] }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="department-detail">
+
+                                    <span>
+                                        Location
+                                    </span>
+
+                                    <strong>
+                                        {{ complaint["location"] }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="department-detail">
+
+                                    <span>
+                                        Incident Date
+                                    </span>
+
+                                    <strong>
+                                        {{ complaint["date"] }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="department-detail">
+
+                                    <span>
+                                        Department
+                                    </span>
+
+                                    <strong>
+                                        {{ complaint["department"] }}
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+
+                            <!-- DESCRIPTION -->
+
+                            <div class="department-description">
+
+                                <span>
+                                    Complaint Description
+                                </span>
+
+                                <p>
+                                    {{ complaint["description"] }}
+                                </p>
+
+                            </div>
+
+
+                            <!-- EVIDENCE -->
+
+                            {% if complaint["image"] or complaint["video"] %}
+
+                            <div class="department-evidence">
+
+                                <strong>
+                                    Evidence
+                                </strong>
+
+
+                                <div class="evidence-links">
+
+
+                                    {% if complaint["image"] %}
+
+                                    <a href="/uploads/{{ complaint['image'] }}"
+                                       target="_blank"
+                                       class="evidence-link">
+
+                                        View Image
+
+                                    </a>
+
+                                    {% endif %}
+
+
+                                    {% if complaint["video"] %}
+
+                                    <a href="/uploads/{{ complaint['video'] }}"
+                                       target="_blank"
+                                       class="evidence-link">
+
+                                        View Video
+
+                                    </a>
+
+                                    {% endif %}
+
+
+                                </div>
+
+                            </div>
+
+                            {% endif %}
+
+
+                            <!-- ACTIONS -->
+
+                            <div class="department-actions">
+
+
+                                {% if complaint["status"] == "Assigned" %}
+
+                                <a href="/department/review/{{ complaint['complaint_id'] }}"
+                                   class="btn primary-btn"
+                                   onclick="return confirm('Start reviewing this complaint?');">
+
+                                    Start Review
+
+                                </a>
+
+                                {% endif %}
+
+
+                                {% if complaint["status"] == "Under Review" %}
+
+                                <a href="/department/resolve/{{ complaint['complaint_id'] }}"
+                                   class="btn resolve-btn"
+                                   onclick="return confirm('Mark this complaint as resolved?');">
+
+                                    Mark as Resolved
+
+                                </a>
+
+                                {% endif %}
+
+
+                                {% if complaint["status"] == "Resolved" %}
+
+                                <span class="resolved-message">
+
+                                    ✓ Complaint Resolved
+
+                                </span>
+
+                                {% endif %}
+
+
+                                {% if complaint["status"] == "Rejected" %}
+
+                                <span class="rejected-message">
+
+                                    ✕ Complaint Rejected
+
+                                </span>
+
+                                {% endif %}
+
+
+                            </div>
+
+
+                        </div>
+
+
+                        {% endfor %}
+
+
+                    </div>
+
+
+                {% else %}
+
+
+                    <!-- ==============================
+                         NO COMPLAINTS
+                    =============================== -->
+
+                    <div class="no-complaints">
+
+                        <div class="no-complaints-icon">
+                            ✓
+                        </div>
+
+                        <h2>
+                            No Complaints Assigned
+                        </h2>
+
+                        <p>
+                            There are currently no complaints
+                            assigned to {{ department }}.
+                        </p>
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+            <!-- ==============================
+                 WORKFLOW
+            =============================== -->
+
+            <div class="department-workflow">
+
+                <h2>
+                    Complaint Processing Workflow
+                </h2>
+
+
+                <div class="department-workflow-grid">
+
+
+                    <div class="workflow-card">
+
+                        <div class="workflow-number">
+                            1
+                        </div>
+
+                        <h3>
+                            Assigned
+                        </h3>
+
+                        <p>
+                            A validated complaint is assigned
+                            to the appropriate department.
+                        </p>
+
+                    </div>
+
+
+                    <div class="workflow-card">
+
+                        <div class="workflow-number">
+                            2
+                        </div>
+
+                        <h3>
+                            Under Review
+                        </h3>
+
+                        <p>
+                            Department staff examine the complaint
+                            and investigate the reported issue.
+                        </p>
+
+                    </div>
+
+
+                    <div class="workflow-card">
+
+                        <div class="workflow-number">
+                            3
+                        </div>
+
+                        <h3>
+                            Resolved
+                        </h3>
+
+                        <p>
+                            Once the issue has been addressed,
+                            the complaint is marked as resolved.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGOUT -->
+
+            <div class="department-footer">
+
+                <a href="/department-logout"
+                   class="cancel-btn">
+
+                    Logout from Department Portal
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>
+                    CivicConnect
+                </h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>
