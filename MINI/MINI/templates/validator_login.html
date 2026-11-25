@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Validator Login | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Citizen Complaint Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+                <a href="/">Home</a>
+                <a href="/#how-it-works">How It Works</a>
+                <a href="/#about">About</a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==============================
+         LOGIN PAGE
+    =============================== -->
+
+    <main class="login-page">
+
+        <div class="login-container">
+
+            <div class="login-box">
+
+                <!-- ICON -->
+
+                <div class="login-icon">
+                    ✓
+                </div>
+
+
+                <!-- HEADING -->
+
+                <div class="login-heading">
+
+                    <span>VALIDATOR PORTAL</span>
+
+                    <h1>
+                        Validator Login
+                    </h1>
+
+                    <p>
+                        Access the complaint validation
+                        dashboard to review flagged submissions.
+                    </p>
+
+                </div>
+
+
+                <!-- ERROR -->
+
+                {% if error %}
+
+                <div class="login-error">
+                    {{ error }}
+                </div>
+
+                {% endif %}
+
+
+                <!-- LOGIN FORM -->
+
+                <form method="POST">
+
+                    <div class="form-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Enter validator username"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter validator password"
+                            required>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="btn primary-btn">
+
+                        Login to Validator Portal
+
+                    </button>
+
+                </form>
+
+
+                <!-- FOOTER -->
+
+                <div class="login-footer">
+
+                    <a href="/">
+                        ← Back to Home
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>CivicConnect</h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

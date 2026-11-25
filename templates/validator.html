@@ -2,451 +2,1211 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Validator Dashboard - CivicConnect</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --green: #16a34a;
+            --red: #dc2626;
+            --amber: #d97706;
+            --blue: #2563eb;
+        }
 
-    <title>Validator Dashboard | CivicConnect</title>
+        * {
+            box-sizing: border-box;
+        }
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+        body {
+            margin: 0;
+            font-family: system-ui, Segoe UI, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
 
+        header {
+            background: #111827;
+            color: white;
+            padding: 16px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            background: #374151;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 28px auto;
+            padding: 0 18px;
+        }
+
+        h2 {
+            margin: 28px 0 14px;
+        }
+
+        .page-heading {
+            margin-bottom: 22px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .stat b {
+            display: block;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .flash {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .flash.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .flash.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-head h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+
+        .chip.low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .chip.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .chip.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .chip.prio {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .meta {
+            color: var(--muted);
+            font-size: 14px;
+            margin: 8px 0 14px;
+            line-height: 1.6;
+        }
+
+        .label {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            margin: 18px 0 6px;
+        }
+
+        .description {
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .reasons {
+            margin: 5px 0;
+            padding-left: 20px;
+            color: var(--amber);
+            line-height: 1.7;
+        }
+
+        .notice {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 14px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .notice .orig {
+            color: var(--muted);
+            margin-top: 7px;
+        }
+
+        .media {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .media img,
+        .media video {
+            max-width: 280px;
+            max-height: 210px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .ai-report {
+            background: #f8fafc;
+            border: 1px solid #dbe3ee;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 22px;
+        }
+
+        .ai-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .ai-heading h3 {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 18px;
+        }
+
+        .ai-tag {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .ai-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 15px;
+            min-width: 0;
+        }
+
+        .ai-item h4 {
+            margin: 0 0 12px;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .ai-item p {
+            margin: 7px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .ai-item strong {
+            color: #111827;
+        }
+
+        .ai-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e40af;
+        }
+
+        .ai-keywords {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .keyword {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 4px 9px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .ai-note {
+            background: #eff6ff;
+            border-left: 4px solid var(--blue);
+            padding: 12px;
+            margin-top: 16px;
+            border-radius: 5px;
+            color: #1e40af;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .ai-metric {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .ai-metric span {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .ai-metric strong {
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .ai-report ul {
+            margin: 8px 0 0;
+            padding-left: 20px;
+        }
+
+        .ai-report li {
+            margin: 4px 0;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .ai-bar {
+            height: 7px;
+            background: #e5e7eb;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 7px;
+        }
+
+        .ai-bar > span {
+            display: block;
+            height: 100%;
+            background: #2563eb;
+            border-radius: 99px;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 16px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 85px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font: inherit;
+            resize: vertical;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 18px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .approve {
+            background: var(--green);
+        }
+
+        .reject {
+            background: var(--red);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 750px;
+            border-collapse: collapse;
+            background: var(--card);
+            border: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f9fafb;
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .ok {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .no {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+        .empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 40px 15px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .stats,
+            .ai-grid,
+            .actions {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 14px 16px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- ==============================
-         NAVBAR
-    =============================== -->
+<header>
+    <strong>CivicConnect — Validator Dashboard</strong>
 
-    <header class="navbar">
+    <span>
+        {{ username }}
+        &nbsp;
+        <a href="/validator-logout">Logout</a>
+    </span>
+</header>
 
-        <div class="nav-container">
+<main>
 
-            <div class="brand">
+    <div class="page-heading">
+        <h1>Complaint Validation Dashboard</h1>
 
-                <div class="brand-icon">
-                    CC
-                </div>
+        <p>
+            Review flagged complaints, examine AI-assisted assessments
+            and make the final validation decision.
+        </p>
+    </div>
 
-                <div>
-                    <h2>CivicConnect</h2>
-                    <span>Validator Portal</span>
-                </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="stats">
+
+        <div class="stat">
+            <b>{{ stats.pending }}</b>
+            <span>Waiting for review</span>
+        </div>
+
+        <div class="stat">
+            <b>{{ stats.approved_today }}</b>
+            <span>Approved today</span>
+        </div>
+
+        <div class="stat">
+            <b>{{ stats.rejected_today }}</b>
+            <span>Rejected today</span>
+        </div>
+
+    </div>
+
+    <h2>
+        Flagged for Review
+
+        <small style="color:var(--muted);font-weight:400;font-size:13px;">
+            Highest suspicion score first
+        </small>
+    </h2>
+
+    {% if not complaints %}
+
+        <div class="empty">
+            <h3>No complaints are waiting for review.</h3>
+
+            <p>
+                All currently flagged complaints have been reviewed.
+            </p>
+        </div>
+
+    {% endif %}
+
+    {% for c in complaints %}
+
+    <div class="card">
+
+        <div class="card-head">
+
+            <h3>
+                Complaint {{ c.complaint_id }}
+            </h3>
+
+            <div class="chips">
+
+                <span class="chip prio">
+                    Priority: {{ c.priority }}
+                </span>
+
+                <span class="chip {{ c.score_level }}">
+                    Suspicion score: {{ c.suspicion_score }}/100
+                </span>
 
             </div>
-
-            <nav>
-                <a href="/">Home</a>
-                <a href="/validator-logout">Logout</a>
-            </nav>
 
         </div>
 
-    </header>
+        <div class="meta">
 
+            {{ c.category }}
+            &middot;
+            {{ c.department }}
+            &middot;
+            Incident date: {{ c.date }}
 
-    <!-- ==============================
-         VALIDATOR DASHBOARD
-    =============================== -->
+            &middot;
 
-    <main class="validator-page">
+            Submitted:
+            {{ c.created_at[:16].replace('T', ' ') if c.created_at else '-' }}
 
-        <div class="validator-container">
+        </div>
 
-            <!-- PAGE HEADING -->
+        <div class="label">Location</div>
 
-            <div class="validator-heading">
+        <div>
+            {{ c.location }}
+        </div>
 
-                <span>VALIDATOR PORTAL</span>
+        <div class="label">Complaint Description</div>
 
-                <h1>
-                    Complaint Validation Dashboard
-                </h1>
+        <div class="description">
+            {{ c.description }}
+        </div>
 
-                <p>
-                    Review complaints that were automatically
-                    flagged by the CivicConnect validation system.
-                </p>
+        <div class="label">Reason for Flagging</div>
+
+        {% if c.flag_reasons %}
+
+            <ul class="reasons">
+
+                {% for reason in c.flag_reasons %}
+                    <li>{{ reason }}</li>
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <div class="meta">
+                No additional reason recorded.
+            </div>
+
+        {% endif %}
+
+        <section class="ai-report" aria-label="AI validation report">
+
+            <h4>AI Validation Report</h4>
+
+            <div class="ai-grid">
+
+                <div class="ai-metric">
+                    <span>AI Suggested Category</span>
+
+                    <strong>
+                        {{ c.ai_predicted_category }}
+                    </strong>
+
+                    <div class="ai-note">
+                        {% if c.ai_category_matches %}
+                            AI suggestion matches the selected category.
+                        {% else %}
+                            AI suggestion differs from the selected category:
+                            {{ c.category }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="ai-metric">
+                    <span>Category Match Strength</span>
+
+                    <strong>
+                        {{ c.ai_confidence_percent }}%
+                    </strong>
+
+                    <div class="ai-bar">
+                        <span class="confidence-fill"
+                              data-confidence="{{ c.ai_confidence_percent }}"></span>
+                    </div>
+                </div>
+
+                <div class="ai-metric">
+                    <span>Priority Assessment</span>
+
+                    <strong>
+                        {{ c.priority }} · {{ c.priority_score }}/100
+                    </strong>
+
+                    <div class="ai-note">
+                        {{ c.priority_explanation }}
+                    </div>
+                </div>
+
+                <div class="ai-metric">
+                    <span>Duplicate Assessment</span>
+
+                    {% if c.duplicate %}
+
+                        <strong>
+                            Potential Match ·
+                            {{ c.duplicate.similarity_percent }}%
+                        </strong>
+
+                        <div class="ai-note">
+                            Similar Complaint:
+                            {{ c.duplicate.complaint_id }}
+                        </div>
+
+                    {% else %}
+
+                        <strong>No Stored Duplicate Match</strong>
+
+                        <div class="ai-note">
+                            No duplicate similarity result was recorded.
+                        </div>
+
+                    {% endif %}
+                </div>
 
             </div>
 
+            <div class="label">
+                Evidence Detected by AI Classifier
+            </div>
 
-            <!-- ==============================
-                 INFORMATION BANNER
-            =============================== -->
+            {% if c.ai_matched_keywords %}
 
-            <div class="validator-info">
+                <ul>
+                    {% for keyword in c.ai_matched_keywords %}
+                        <li>{{ keyword }}</li>
+                    {% endfor %}
+                </ul>
 
-                <div class="validator-info-icon">
-                    !
+            {% else %}
+
+                <div class="meta">
+                    No supported category keywords detected.
+                    Manual review recommended.
                 </div>
 
-                <div>
+            {% endif %}
 
-                    <strong>
-                        Complaints Requiring Review
-                    </strong>
+            <div class="label">
+                Priority Indicators
+            </div>
+
+            {% if c.priority_indicators %}
+
+                <ul>
+                    {% for indicator in c.priority_indicators %}
+                        <li>{{ indicator }}</li>
+                    {% endfor %}
+                </ul>
+
+            {% else %}
+
+                <div class="meta">
+                    No predefined risk indicators detected.
+                </div>
+
+            {% endif %}
+
+            <p class="ai-note">
+                Decision support only. Category match strength is based
+                on weighted keyword matching, not a calibrated probability.
+                The validator must make the final decision.
+            </p>
+
+        </section>
+
+        <div class="ai-report">
+
+            <div class="ai-heading">
+
+                <h3>
+                    AI-Assisted Complaint Assessment
+                </h3>
+
+                <span class="ai-tag">
+                    VALIDATION SUPPORT
+                </span>
+
+            </div>
+
+            {% if c.ai_report is defined and c.ai_report %}
+
+                <div class="ai-grid">
+
+                    <div class="ai-item">
+
+                        <h4>1. Predicted Complaint Category</h4>
+
+                        <p class="ai-value">
+                            {{ c.ai_report.predicted_category }}
+                        </p>
+
+                        <p>
+                            <strong>Confidence:</strong>
+                            {{ (c.ai_report.category_confidence * 100)|round(1) }}%
+                        </p>
+
+                        <p>
+                            <strong>Filed Category:</strong>
+                            {{ c.category }}
+                        </p>
+
+                        <p>
+                            <strong>Matched Keywords:</strong>
+                        </p>
+
+                        {% if c.ai_report.matched_keywords %}
+
+                            <div class="ai-keywords">
+
+                                {% for keyword in c.ai_report.matched_keywords %}
+                                    <span class="keyword">
+                                        {{ keyword }}
+                                    </span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <p>No matching keywords detected.</p>
+
+                        {% endif %}
+
+                        <p class="meta">
+                            Method:
+                            {{ c.ai_report.classification_method }}
+                        </p>
+
+                    </div>
+
+                    <div class="ai-item">
+
+                        <h4>2. Priority Assessment</h4>
+
+                        <p class="ai-value">
+                            {{ c.ai_report.priority }}
+                        </p>
+
+                        <p>
+                            <strong>Risk Score:</strong>
+                            {{ c.ai_report.priority_score }}/100
+                        </p>
+
+                        <p>
+                            <strong>Explanation:</strong>
+                            {{ c.ai_report.priority_explanation }}
+                        </p>
+
+                        <p>
+                            <strong>Detected Indicators:</strong>
+                        </p>
+
+                        {% if c.ai_report.priority_indicators %}
+
+                            <div class="ai-keywords">
+
+                                {% for indicator in c.ai_report.priority_indicators %}
+                                    <span class="keyword">
+                                        {{ indicator }}
+                                    </span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <p>
+                                No predefined risk indicators detected.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                    <div class="ai-item">
+
+                        <h4>3. Complaint Summary</h4>
+
+                        <p>
+                            {{ c.ai_report.summary }}
+                        </p>
+
+                        <p class="meta">
+                            Method:
+                            {{ c.ai_report.summary_method }}
+                        </p>
+
+                    </div>
+
+                    <div class="ai-item">
+
+                        <h4>4. Validation Assessment</h4>
+
+                        <p>
+                            <strong>Current Status:</strong>
+                            {{ c.status }}
+                        </p>
+
+                        <p>
+                            <strong>Suspicion Score:</strong>
+                            {{ c.suspicion_score }}/100
+                        </p>
+
+                        <p>
+                            <strong>Validation Findings:</strong>
+                        </p>
+
+                        {% if c.flag_reasons %}
+
+                            <ul class="reasons">
+
+                                {% for reason in c.flag_reasons %}
+                                    <li>{{ reason }}</li>
+                                {% endfor %}
+
+                            </ul>
+
+                        {% else %}
+
+                            <p>No additional findings recorded.</p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="notice">
+
+                    <strong>AI report is not available yet.</strong>
 
                     <p>
-                        These complaints were flagged because
-                        they may contain suspicious or duplicate
-                        content. Review the available information
-                        before making a decision.
+                        The existing complaint validation information
+                        is still available above. Connect the AI report
+                        data in validation_service.py to display the
+                        additional assessment.
                     </p>
 
                 </div>
 
-            </div>
+            {% endif %}
 
+            {% if c.duplicate %}
 
-            <!-- ==============================
-                 COMPLAINT COUNT
-            =============================== -->
-
-            <div class="validator-summary">
-
-                <div class="validator-summary-card">
-
-                    <span>
-                        Flagged Complaints
-                    </span>
+                <div class="notice">
 
                     <strong>
-                        {{ complaints|length }}
+                        Possible Duplicate Complaint
                     </strong>
 
-                </div>
+                    <p>
+                        Related Complaint:
+                        {{ c.duplicate.complaint_id }}
+                    </p>
 
-            </div>
+                    <p>
+                        Similarity:
+                        {{ c.duplicate.similarity_percent }}%
+                    </p>
 
+                    {% if c.duplicate.original %}
 
-            <!-- ==============================
-                 COMPLAINT LIST
-            =============================== -->
+                        <div class="orig">
 
-            <div class="validator-list">
-
-                {% if complaints %}
-
-                    {% for complaint in complaints %}
-
-                    <div class="validator-card">
-
-                        <!-- CARD HEADER -->
-
-                        <div class="validator-card-header">
-
-                            <div>
-
-                                <span class="complaint-label">
-                                    COMPLAINT ID
-                                </span>
-
-                                <h2>
-                                    {{ complaint["complaint_id"] }}
-                                </h2>
-
-                            </div>
-
-                            <div class="flagged-badge">
-                                Flagged for Review
-                            </div>
-
-                        </div>
-
-
-                        <!-- COMPLAINT DETAILS -->
-
-                        <div class="validator-details">
-
-                            <div class="validator-detail">
-
-                                <span>
-                                    Category
-                                </span>
-
-                                <strong>
-                                    {{ complaint["category"] }}
-                                </strong>
-
-                            </div>
-
-
-                            <div class="validator-detail">
-
-                                <span>
-                                    Department
-                                </span>
-
-                                <strong>
-                                    {{ complaint["department"] }}
-                                </strong>
-
-                            </div>
-
-
-                            <div class="validator-detail">
-
-                                <span>
-                                    Location
-                                </span>
-
-                                <strong>
-                                    {{ complaint["location"] }}
-                                </strong>
-
-                            </div>
-
-
-                            <div class="validator-detail">
-
-                                <span>
-                                    Date
-                                </span>
-
-                                <strong>
-                                    {{ complaint["date"] }}
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- DESCRIPTION -->
-
-                        <div class="validator-description">
-
-                            <span>
-                                Complaint Description
-                            </span>
+                            <strong>Original Complaint Details</strong>
 
                             <p>
-                                {{ complaint["description"] }}
+                                Status:
+                                {{ c.duplicate.original.status }}
+                            </p>
+
+                            <p>
+                                Category:
+                                {{ c.duplicate.original.category }}
+                            </p>
+
+                            <p>
+                                Location:
+                                {{ c.duplicate.original.location }}
+                            </p>
+
+                            <p>
+                                Description:
+                                {{ c.duplicate.original.description | truncate(220) }}
                             </p>
 
                         </div>
 
+                    {% else %}
 
-                        <!-- EVIDENCE -->
-
-                        {% if complaint["image"] or complaint["video"] %}
-
-                        <div class="validator-evidence">
-
-                            <strong>
-                                Evidence
-                            </strong>
-
-                            <div class="evidence-links">
-
-                                {% if complaint["image"] %}
-
-                                <a href="/uploads/{{ complaint['image'] }}"
-                                   target="_blank"
-                                   class="evidence-link">
-
-                                    View Image
-
-                                </a>
-
-                                {% endif %}
-
-
-                                {% if complaint["video"] %}
-
-                                <a href="/uploads/{{ complaint['video'] }}"
-                                   target="_blank"
-                                   class="evidence-link">
-
-                                    View Video
-
-                                </a>
-
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-                        {% endif %}
-
-
-                        <!-- VALIDATOR ACTIONS -->
-
-                        <div class="validator-actions">
-
-                            <a href="/validate/{{ complaint['complaint_id'] }}"
-                               class="btn primary-btn"
-                               onclick="return confirm('Validate this complaint and assign it to the concerned department?');">
-
-                                ✓ Validate Complaint
-
-                            </a>
-
-
-                            <a href="/reject/{{ complaint['complaint_id'] }}"
-                               class="btn reject-btn"
-                               onclick="return confirm('Are you sure you want to reject this complaint?');">
-
-                                ✕ Reject Complaint
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                    {% endfor %}
-
-
-                {% else %}
-
-                    <!-- NO FLAGGED COMPLAINTS -->
-
-                    <div class="no-complaints">
-
-                        <div class="no-complaints-icon">
-                            ✓
-                        </div>
-
-                        <h2>
-                            No Complaints Require Review
-                        </h2>
-
-                        <p>
-                            There are currently no complaints
-                            waiting for validator review.
+                        <p class="orig">
+                            The original complaint is no longer
+                            available in the database.
                         </p>
 
-                    </div>
+                    {% endif %}
+
+                </div>
+
+            {% else %}
+
+                <div class="meta">
+                    No duplicate reference is recorded for this complaint.
+                </div>
+
+            {% endif %}
+
+            <div class="ai-note">
+
+                <strong>Important:</strong>
+
+                AI-generated category classification, priority
+                estimation and summarization are decision-support
+                indicators. They do not establish whether a complaint
+                is genuine or false. The validator must independently
+                examine the complaint details and supporting evidence
+                before making the final decision.
+
+            </div>
+
+        </div>
+
+        {% if c.suggested_category %}
+
+            <div class="notice">
+
+                The description looks like
+                <strong>{{ c.suggested_category }}</strong>,
+                but it was filed under
+                <strong>{{ c.category }}</strong>.
+
+            </div>
+
+        {% endif %}
+
+        <div class="label">
+            Supporting Evidence
+        </div>
+
+        {% if c.image_file or c.video_file %}
+
+            <div class="media">
+
+                {% if c.image_file %}
+
+                    <a
+                        href="{{ url_for('serve_upload', filename=c.image_file) }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+
+                        <img
+                            src="{{ url_for('serve_upload', filename=c.image_file) }}"
+                            alt="Complaint evidence image"
+                        >
+
+                    </a>
+
+                {% endif %}
+
+                {% if c.video_file %}
+
+                    <video controls preload="metadata">
+
+                        <source
+                            src="{{ url_for('serve_upload', filename=c.video_file) }}"
+                        >
+
+                        Your browser does not support video playback.
+
+                    </video>
 
                 {% endif %}
 
             </div>
 
+        {% else %}
 
-            <!-- ==============================
-                 VALIDATOR PROCESS
-            =============================== -->
-
-            <div class="validator-process">
-
-                <h2>
-                    Validation Process
-                </h2>
-
-                <div class="validator-process-grid">
-
-                    <div class="process-card">
-
-                        <div class="process-number">
-                            1
-                        </div>
-
-                        <h3>
-                            Review
-                        </h3>
-
-                        <p>
-                            Examine the complaint details,
-                            location, description and evidence.
-                        </p>
-
-                    </div>
-
-
-                    <div class="process-card">
-
-                        <div class="process-number">
-                            2
-                        </div>
-
-                        <h3>
-                            Validate
-                        </h3>
-
-                        <p>
-                            Approve legitimate complaints so
-                            they can be assigned to a department.
-                        </p>
-
-                    </div>
-
-
-                    <div class="process-card">
-
-                        <div class="process-number">
-                            3
-                        </div>
-
-                        <h3>
-                            Reject
-                        </h3>
-
-                        <p>
-                            Reject complaints that are determined
-                            to be invalid or inappropriate.
-                        </p>
-
-                    </div>
-
-                </div>
-
+            <div class="meta">
+                No image or video evidence attached.
             </div>
 
+        {% endif %}
 
-            <!-- LOGOUT -->
+        <div class="actions">
 
-            <div class="validator-footer">
+            <form
+                method="POST"
+                action="{{ url_for('validate_complaint', complaint_id=c.complaint_id) }}"
+            >
 
-                <a href="/validator-logout"
-                   class="cancel-btn">
+                <h4>Approve Complaint</h4>
 
-                    Logout from Validator Portal
+                <p class="meta">
+                    Approve this complaint and assign it to the
+                    concerned department.
+                </p>
 
-                </a>
+                <button
+                    type="submit"
+                    class="approve"
+                    onclick="return confirm('Approve and assign this complaint?')"
+                >
+                    Approve Complaint
+                </button>
 
-            </div>
+            </form>
+
+            <form
+                method="POST"
+                action="{{ url_for('reject_complaint', complaint_id=c.complaint_id) }}"
+            >
+
+                <h4>Reject Complaint</h4>
+
+                <p class="meta">
+                    Provide a clear reason for rejecting this complaint.
+                </p>
+
+                <textarea
+                    name="reason"
+                    required
+                    minlength="{{ min_reason_length }}"
+                    maxlength="{{ max_reason_length }}"
+                    placeholder="Enter rejection reason. The citizen can see this."
+                ></textarea>
+
+                <button
+                    type="submit"
+                    class="reject"
+                    onclick="return confirm('Are you sure you want to reject this complaint?')"
+                >
+                    Reject Complaint
+                </button>
+
+            </form>
 
         </div>
 
-    </main>
+    </div>
 
+    {% endfor %}
 
-    <!-- ==============================
-         FOOTER
-    =============================== -->
+    <h2>Recently Reviewed Complaints</h2>
 
-    <footer>
+    {% if recent_reviews %}
 
-        <div class="footer-container">
+        <div class="table-wrapper">
 
-            <div>
+            <table>
 
-                <h3>CivicConnect</h3>
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Category</th>
+                        <th>Decision</th>
+                        <th>Reviewed By</th>
+                        <th>Reviewed At</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
 
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
+                <tbody>
 
-            </div>
+                    {% for r in recent_reviews %}
 
-            <div>
+                        <tr>
 
-                <p>
-                    © 2026 CivicConnect. All rights reserved.
-                </p>
+                            <td>
+                                {{ r.complaint_id }}
+                            </td>
 
-            </div>
+                            <td>
+                                {{ r.category }}
+                            </td>
+
+                            <td>
+
+                                {% if r.rejection_reason %}
+
+                                    <span class="no">
+                                        Rejected
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="ok">
+                                        Approved
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ r.reviewed_by }}
+                            </td>
+
+                            <td>
+                                {{ r.reviewed_at[:16].replace('T', ' ') if r.reviewed_at else '-' }}
+                            </td>
+
+                            <td>
+                                {{ r.rejection_reason or '-' }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
         </div>
 
-    </footer>
+    {% else %}
+
+        <div class="empty">
+            No decisions have been recorded yet.
+        </div>
+
+    {% endif %}
+
+</main>
+
+<script>
+document.querySelectorAll(".confidence-fill").forEach(function (bar) {
+    const confidence = Number(bar.dataset.confidence) || 0;
+    bar.style.width = Math.max(0, Math.min(100, confidence)) + "%";
+});
+</script>
 
 </body>
-
 </html>

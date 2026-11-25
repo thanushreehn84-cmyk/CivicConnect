@@ -1,26 +1,74 @@
-from flask import Flask, render_template, request, redirect, session
-import sqlite3
-import random
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    session,
+    url_for,
+    flash,
+    abort,
+    send_from_directory
+)
+
 import os
-import re
+import random
+
 from datetime import datetime, timedelta
-from difflib import SequenceMatcher
 from werkzeug.utils import secure_filename
 
+from database.db import (
+    get_db_connection,
+    create_database,
+    upgrade_database,
+    add_history
+)
+
+from services.auth_service import (
+    authenticate_user,
+    VALID_DEPARTMENTS
+)
+
+from services.validation_service import (
+    analyze_complaint,
+    validate_date,
+    validate_location,
+    validate_description,
+    get_review_queue,
+    get_recently_reviewed,
+    get_review_stats,
+    update_validation_decision,
+    MIN_REJECTION_REASON_LENGTH,
+    MAX_REJECTION_REASON_LENGTH
+)
+
+from routes.admin import admin_bp
+from routes.citizen import citizen_bp
+from routes.department import department_bp
+from routes.validator import validator_bp
+
+# ==================================================
+# FLASK APPLICATION
+# ==================================================
 
 app = Flask(__name__)
 
+app.secret_key = (
+    os.environ.get("CIVICCONNECT_SECRET_KEY")
+    or os.urandom(32)
+)
 
-# ==============================
-# FLASK SESSION
-# ==============================
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=(
+        os.environ.get("FLASK_ENV") == "production"
+    ),
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8)
+)
 
-app.secret_key = "civicconnect_secret_key"
-
-
-# ==============================
+# ==================================================
 # UPLOAD SETTINGS
-# ==============================
+# ==================================================
 
 UPLOAD_FOLDER = "uploads"
 
@@ -40,237 +88,62 @@ ALLOWED_VIDEO_EXTENSIONS = {
 
 MAX_FILE_SIZE = 50 * 1024 * 1024
 
-os.makedirs(
-    UPLOAD_FOLDER,
-    exist_ok=True
-)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# ==================================================
+# REGISTER BLUEPRINTS
+# ==================================================
 
-# ==============================
-# DATABASE CONNECTION
-# ==============================
+app.register_blueprint(admin_bp)
+app.register_blueprint(citizen_bp)
+app.register_blueprint(department_bp)
+app.register_blueprint(validator_bp)
 
-def get_db_connection():
-
-    connection = sqlite3.connect(
-        "civicconnect.db"
-    )
-
-    connection.row_factory = sqlite3.Row
-
-    return connection
-
-
-# ==============================
-# CREATE DATABASE
-# ==============================
-
-def create_database():
-
-    connection = get_db_connection()
-
-    # ==============================
-    # COMPLAINTS TABLE
-    # ==============================
-
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS complaints (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            complaint_id TEXT UNIQUE NOT NULL,
-
-            category TEXT NOT NULL,
-
-            location TEXT NOT NULL,
-
-            date TEXT NOT NULL,
-
-            description TEXT NOT NULL,
-
-            status TEXT NOT NULL,
-
-            department TEXT NOT NULL,
-
-            image_path TEXT,
-
-            video_path TEXT,
-
-            suspicion_score INTEGER DEFAULT 0,
-
-            validation_message TEXT,
-
-            created_at TEXT NOT NULL
-
-        )
-    """)
-
-    # ==============================
-    # COMPLAINT HISTORY TABLE
-    # ==============================
-
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS complaint_history (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            complaint_id TEXT NOT NULL,
-
-            status TEXT NOT NULL,
-
-            timestamp TEXT NOT NULL,
-
-            changed_by TEXT,
-
-            remarks TEXT
-
-        )
-    """)
-
-    connection.commit()
-
-    connection.close()
-
-
-# ==============================
-# UPGRADE OLD DATABASE
-# ==============================
-
-def upgrade_database():
-
-    connection = get_db_connection()
-
-    # ==============================
-    # CHECK COMPLAINT COLUMNS
-    # ==============================
-
-    columns = connection.execute(
-        "PRAGMA table_info(complaints)"
-    ).fetchall()
-
-    existing_columns = [
-        column["name"]
-        for column in columns
-    ]
-
-    required_columns = {
-
-        "image_path": "TEXT",
-
-        "video_path": "TEXT",
-
-        "suspicion_score": "INTEGER DEFAULT 0",
-
-        "validation_message": "TEXT",
-
-        "created_at": "TEXT"
-
-    }
-
-    for column, datatype in required_columns.items():
-
-        if column not in existing_columns:
-
-            connection.execute(
-                f"""
-                ALTER TABLE complaints
-                ADD COLUMN {column} {datatype}
-                """
-            )
-
-    # ==============================
-    # MAKE SURE HISTORY TABLE EXISTS
-    # ==============================
-
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS complaint_history (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            complaint_id TEXT NOT NULL,
-
-            status TEXT NOT NULL,
-
-            timestamp TEXT NOT NULL,
-
-            changed_by TEXT,
-
-            remarks TEXT
-
-        )
-    """)
-
-    connection.commit()
-
-    connection.close()
-
-
-# ==============================
-# COMPLAINT HISTORY
-# ==============================
-
-def add_history(
-    complaint_id,
-    status,
-    changed_by="System",
-    remarks=""
-):
-
-    connection = get_db_connection()
-
-    connection.execute(
-        """
-        INSERT INTO complaint_history
-        (
-            complaint_id,
-            status,
-            timestamp,
-            changed_by,
-            remarks
-        )
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (
-            complaint_id,
-            status,
-            datetime.now().isoformat(),
-            changed_by,
-            remarks
-        )
-    )
-
-    connection.commit()
-
-    connection.close()
-
-
-# ==============================
+# ==================================================
 # HOME PAGE
-# ==============================
+# ==================================================
 
 @app.route("/")
 def home():
 
-    return render_template(
-        "index.html"
+    return render_template("index.html")
+
+# ==================================================
+# ROLE CHECK HELPERS
+# ==================================================
+
+def validator_required():
+    return (
+        session.get("validator_logged_in")
+        and session.get("role") == "validator"
     )
 
+def staff_logged_in():
+    """True for any logged-in validator, department user or admin."""
 
-# ==============================
+    return bool(
+        (
+            session.get("validator_logged_in")
+            and session.get("role") == "validator"
+        )
+        or (
+            session.get("department_logged_in")
+            and session.get("role") == "department"
+        )
+        or (
+            session.get("admin_logged_in")
+            and session.get("role") == "admin"
+        )
+    )
+
+# ==================================================
 # CAPTCHA
-# ==============================
+# ==================================================
 
 def generate_captcha():
 
-    number1 = random.randint(
-        1,
-        9
-    )
-
-    number2 = random.randint(
-        1,
-        9
-    )
+    number1 = random.randint(1, 9)
+    number2 = random.randint(1, 9)
 
     answer = number1 + number2
 
@@ -278,103 +151,77 @@ def generate_captcha():
 
     return f"{number1} + {number2} = ?"
 
-
-# ==============================
+# ==================================================
 # IMAGE VALIDATION
-# ==============================
+# ==================================================
 
 def validate_image(file):
 
-    if not file or file.filename == "":
+    if not file or not file.filename:
         return True
 
-    filename = secure_filename(
-        file.filename
-    )
+    filename = secure_filename(file.filename)
 
-    extension = filename.rsplit(
-        ".",
-        1
-    )[-1].lower()
-
-    if extension not in ALLOWED_IMAGE_EXTENSIONS:
-
+    if "." not in filename:
         return False
 
-    file.seek(
-        0,
-        2
-    )
+    extension = filename.rsplit(".", 1)[-1].lower()
 
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        return False
+
+    file.seek(0, 2)
     size = file.tell()
-
     file.seek(0)
 
     if size > MAX_FILE_SIZE:
-
         return False
 
     return True
 
-
-# ==============================
+# ==================================================
 # VIDEO VALIDATION
-# ==============================
+# ==================================================
 
 def validate_video(file):
 
-    if not file or file.filename == "":
+    if not file or not file.filename:
         return True
 
-    filename = secure_filename(
-        file.filename
-    )
+    filename = secure_filename(file.filename)
 
-    extension = filename.rsplit(
-        ".",
-        1
-    )[-1].lower()
-
-    if extension not in ALLOWED_VIDEO_EXTENSIONS:
-
+    if "." not in filename:
         return False
 
-    file.seek(
-        0,
-        2
-    )
+    extension = filename.rsplit(".", 1)[-1].lower()
 
+    if extension not in ALLOWED_VIDEO_EXTENSIONS:
+        return False
+
+    file.seek(0, 2)
     size = file.tell()
-
     file.seek(0)
 
     if size > MAX_FILE_SIZE:
-
         return False
 
     return True
 
-
-# ==============================
+# ==================================================
 # SAVE UPLOADED FILE
-# ==============================
+# ==================================================
 
-def save_file(
-    file,
-    complaint_id
-):
+def save_file(file, complaint_id):
 
-    if not file or file.filename == "":
+    if not file or not file.filename:
         return None
 
-    filename = secure_filename(
-        file.filename
-    )
+    filename = secure_filename(file.filename)
 
-    extension = filename.rsplit(
-        ".",
-        1
-    )[-1].lower()
+    if "." not in filename:
+        return None
+
+    extension = filename.rsplit(".", 1)[-1].lower()
 
     new_filename = (
         f"{complaint_id}_"
@@ -391,180 +238,9 @@ def save_file(
 
     return filepath
 
-
-# ==============================
-# DATE VALIDATION
-# ==============================
-
-def validate_date(date_text):
-
-    try:
-
-        complaint_date = datetime.strptime(
-            date_text,
-            "%Y-%m-%d"
-        ).date()
-
-        today = datetime.now().date()
-
-        if complaint_date > today:
-
-            return False
-
-        return True
-
-    except ValueError:
-
-        return False
-
-
-# ==============================
-# LOCATION VALIDATION
-# ==============================
-
-def validate_location(location):
-
-    location = location.strip()
-
-    if len(location) < 5:
-
-        return False
-
-    if not re.search(
-        r"[A-Za-z0-9]",
-        location
-    ):
-
-        return False
-
-    return True
-
-
-# ==============================
-# DESCRIPTION VALIDATION
-# ==============================
-
-def validate_description(
-    description
-):
-
-    description = description.strip()
-
-    if len(description) < 20:
-
-        return False
-
-    words = description.split()
-
-    if len(words) < 5:
-
-        return False
-
-    return True
-
-
-# ==============================
-# SPAM DETECTION
-# ==============================
-
-def is_spam(description):
-
-    description_lower = (
-        description.lower()
-    )
-
-    spam_words = [
-
-        "asdf",
-
-        "qwerty",
-
-        "test complaint",
-
-        "hello hello",
-
-        "abc abc",
-
-        "fake complaint"
-
-    ]
-
-    for word in spam_words:
-
-        if word in description_lower:
-
-            return True
-
-    if re.search(
-        r"(.)\1{6,}",
-        description_lower
-    ):
-
-        return True
-
-    return False
-
-
-# ==============================
-# DUPLICATE DETECTION
-# ==============================
-
-def find_duplicate(
-    category,
-    location,
-    description
-):
-
-    connection = get_db_connection()
-
-    complaints = connection.execute(
-        """
-        SELECT
-            category,
-            location,
-            description
-        FROM complaints
-        ORDER BY id DESC
-        LIMIT 100
-        """
-    ).fetchall()
-
-    connection.close()
-
-    new_text = (
-        category.lower()
-        + " "
-        + location.lower()
-        + " "
-        + description.lower()
-    )
-
-    for complaint in complaints:
-
-        old_text = (
-            complaint["category"].lower()
-            + " "
-            + complaint["location"].lower()
-            + " "
-            + complaint["description"].lower()
-        )
-
-        similarity = SequenceMatcher(
-            None,
-            new_text,
-            old_text
-        ).ratio()
-
-        if similarity >= 0.85:
-
-            return True
-
-    return False
-
-
-# ==============================
+# ==================================================
 # RATE LIMITING
-# ==============================
+# ==================================================
 
 def check_submission_rate():
 
@@ -581,37 +257,26 @@ def check_submission_rate():
 
         try:
 
-            old_time = datetime.fromisoformat(
-                timestamp
-            )
+            old_time = datetime.fromisoformat(timestamp)
 
-            if (
-                now - old_time
-                < timedelta(minutes=10)
-            ):
+            if now - old_time < timedelta(minutes=10):
 
-                valid_submissions.append(
-                    timestamp
-                )
+                valid_submissions.append(timestamp)
 
-        except ValueError:
+        except (ValueError, TypeError):
 
-            pass
+            continue
 
-    session["submissions"] = (
-        valid_submissions
-    )
+    session["submissions"] = valid_submissions
 
     if len(valid_submissions) >= 3:
-
         return False
 
     return True
 
-
-# ==============================
+# ==================================================
 # RECORD SUBMISSION
-# ==============================
+# ==================================================
 
 def record_submission():
 
@@ -626,430 +291,171 @@ def record_submission():
 
     session["submissions"] = submissions
 
-
-# ==============================
+# ==================================================
 # DEPARTMENT ROUTING
-# ==============================
+# ==================================================
 
 def get_department(category):
 
-    if category == "Illegal Construction":
+    department_mapping = {
 
-        return "Municipality"
+        "Illegal Construction": "Municipality",
 
-    elif category == "Environmental Issue":
+        "Environmental Issue": "Pollution Control",
 
-        return "Pollution Control"
+        "Traffic Issue": "Traffic Department",
 
-    elif category == "Traffic Issue":
+        "Public Safety": "Police",
 
-        return "Traffic Department"
+        "Other Civic Issue": "General Civic Department"
 
-    elif category == "Public Safety":
+    }
 
-        return "Police"
+    return department_mapping.get(
+        category,
+        "General Civic Department"
+    )
 
-    return "General Civic Department"
+# ==================================================
+# SERVE UPLOADED EVIDENCE (STAFF ONLY)
+# ==================================================
 
+@app.route("/uploads/<path:filename>")
+def serve_upload(filename):
 
-# ==============================
+    if not staff_logged_in():
+        abort(403)
+
+    return send_from_directory(
+        os.path.abspath(UPLOAD_FOLDER),
+        filename
+    )
+
+# ==================================================
 # REPORT COMPLAINT
-# ==============================
+# ==================================================
 
 @app.route(
     "/report",
     methods=["GET", "POST"]
 )
 def report():
-
-    if request.method == "POST":
-
-        category = request.form.get(
-            "category",
-            ""
-        ).strip()
-
-        location = request.form.get(
-            "location",
-            ""
-        ).strip()
-
-        date = request.form.get(
-            "date",
-            ""
-        ).strip()
-
-        description = request.form.get(
-            "description",
-            ""
-        ).strip()
-
-        captcha = request.form.get(
-            "captcha",
-            ""
-        ).strip()
-
-        image = request.files.get(
-            "image"
+    if request.method == "GET":
+        captcha_question = generate_captcha()
+        return render_template(
+            "report.html",
+            captcha_question=captcha_question
         )
 
-        video = request.files.get(
-            "video"
+    # Collect and normalize submitted fields.
+    category = request.form.get("category", "").strip()
+    location = request.form.get("location", "").strip()
+    complaint_date = request.form.get("date", "").strip()
+    description = request.form.get("description", "").strip()
+    captcha = request.form.get("captcha", "").strip()
+
+    image = request.files.get("image")
+    video = request.files.get("video")
+
+    def report_error(message):
+        return render_template(
+            "report.html",
+            error=message,
+            captcha_question=generate_captcha(),
+            category=category,
+            location=location,
+            date=complaint_date,
+            description=description
         )
 
-        # ==============================
-        # CAPTCHA
-        # ==============================
+    # CAPTCHA validation.
+    correct_captcha = session.pop("captcha_answer", None)
+    try:
+        captcha_answer = int(captcha)
+    except (ValueError, TypeError):
+        captcha_answer = -1
 
-        correct_captcha = session.get(
-            "captcha_answer"
+    if correct_captcha is None or captcha_answer != correct_captcha:
+        return report_error("Incorrect CAPTCHA. Please try again.")
+
+    # Validate all user-provided fields before processing uploads.
+    valid_categories = {
+        "Illegal Construction",
+        "Environmental Issue",
+        "Traffic Issue",
+        "Public Safety",
+        "Other Civic Issue"
+    }
+
+    if category not in valid_categories:
+        return report_error("Please select a valid complaint category.")
+
+    if not validate_location(location):
+        return report_error("Please provide a valid location.")
+
+    if not validate_date(complaint_date):
+        return report_error(
+            "Please provide a valid date. Future dates are not allowed."
         )
 
-        try:
-
-            captcha_answer = int(
-                captcha
-            )
-
-        except ValueError:
-
-            captcha_answer = -1
-
-        if (
-            correct_captcha is None
-            or captcha_answer != correct_captcha
-        ):
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Incorrect CAPTCHA. "
-                    "Please try again."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # CATEGORY
-        # ==============================
-
-        valid_categories = [
-
-            "Illegal Construction",
-
-            "Environmental Issue",
-
-            "Traffic Issue",
-
-            "Public Safety"
-
-        ]
-
-        if category not in valid_categories:
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Please select a valid "
-                    "complaint category."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # LOCATION
-        # ==============================
-
-        if not validate_location(
-            location
-        ):
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Please provide a "
-                    "valid location."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # DATE
-        # ==============================
-
-        if not validate_date(
-            date
-        ):
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Please provide a valid "
-                    "date. Future dates are "
-                    "not allowed."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # DESCRIPTION
-        # ==============================
-
-        if not validate_description(
-            description
-        ):
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Description must contain "
-                    "at least 20 characters "
-                    "and 5 words."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # IMAGE
-        # ==============================
-
-        if not validate_image(
-            image
-        ):
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Invalid image. Use JPG, "
-                    "JPEG, PNG or WEBP under "
-                    "50 MB."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # VIDEO
-        # ==============================
-
-        if not validate_video(
-            video
-        ):
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Invalid video. Use MP4, "
-                    "MOV, AVI or WEBM under "
-                    "50 MB."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # RATE LIMIT
-        # ==============================
-
-        if not check_submission_rate():
-
-            captcha_question = (
-                generate_captcha()
-            )
-
-            return render_template(
-                "report.html",
-                error=(
-                    "Too many complaints "
-                    "submitted. Please try "
-                    "again later."
-                ),
-                captcha_question=(
-                    captcha_question
-                )
-            )
-
-        # ==============================
-        # DUPLICATE
-        # ==============================
-
-        duplicate = find_duplicate(
-            category,
-            location,
-            description
+    if not validate_description(description):
+        return report_error(
+            "Description must contain at least 20 characters and 5 words."
         )
 
-        # ==============================
-        # SPAM
-        # ==============================
-
-        spam = is_spam(
-            description
+    if not validate_image(image):
+        return report_error(
+            "Invalid image. Use JPG, JPEG, PNG or WEBP under 50 MB."
         )
 
-        # ==============================
-        # SUSPICION SCORE
-        # ==============================
-
-        suspicion_score = 0
-
-        validation_messages = []
-
-        if duplicate:
-
-            suspicion_score += 50
-
-            validation_messages.append(
-                "Possible duplicate complaint."
-            )
-
-        if spam:
-
-            suspicion_score += 40
-
-            validation_messages.append(
-                "Possible spam content."
-            )
-
-        if (
-            not image
-            and not video
-        ):
-
-            suspicion_score += 10
-
-            validation_messages.append(
-                "No supporting evidence provided."
-            )
-
-        # ==============================
-        # STATUS
-        # ==============================
-
-        if suspicion_score >= 50:
-
-            status = "Flagged for Review"
-
-        else:
-
-            status = "Assigned"
-
-        # ==============================
-        # COMPLAINT ID
-        # ==============================
-
-        connection = (
-            get_db_connection()
+    if not validate_video(video):
+        return report_error(
+            "Invalid video. Use MP4, MOV, AVI or WEBM under 50 MB."
         )
 
+    if not check_submission_rate():
+        return report_error(
+            "Too many complaints submitted. Please try again later."
+        )
+
+    # Automatic rule-based validation: duplicate, spam, category, evidence.
+    has_evidence = bool(
+        (image and image.filename) or (video and video.filename)
+    )
+
+    analysis = analyze_complaint(
+        category=category,
+        location=location,
+        description=description,
+        has_evidence=has_evidence
+    )
+
+    suspicion_score = analysis["suspicion_score"]
+    status = analysis["status"]
+    validation_message = analysis["validation_message"]
+
+    # Assign the responsible department. Complaints flagged for review
+    # remain in the validator queue until a validator approves them.
+    department = get_department(category)
+
+    connection = get_db_connection()
+    image_path = None
+    video_path = None
+
+    try:
+        # Generate an ID that is not already present in the database.
         while True:
-
-            complaint_id = (
-                "CMP"
-                + str(
-                    random.randint(
-                        10000,
-                        99999
-                    )
-                )
-            )
-
+            complaint_id = f"CMP{random.randint(10000, 99999)}"
             existing = connection.execute(
-                """
-                SELECT complaint_id
-                FROM complaints
-                WHERE complaint_id = ?
-                """,
+                "SELECT complaint_id FROM complaints WHERE complaint_id = ?",
                 (complaint_id,)
             ).fetchone()
-
             if not existing:
-
                 break
 
-        # ==============================
-        # DEPARTMENT
-        # ==============================
-
-        department = get_department(
-            category
-        )
-
-        # ==============================
-        # SAVE FILES
-        # ==============================
-
-        image_path = save_file(
-            image,
-            complaint_id
-        )
-
-        video_path = save_file(
-            video,
-            complaint_id
-        )
-
-        # ==============================
-        # VALIDATION MESSAGE
-        # ==============================
-
-        if validation_messages:
-
-            validation_message = " ".join(
-                validation_messages
-            )
-
-        else:
-
-            validation_message = (
-                "Complaint passed automatic "
-                "validation and was assigned "
-                "to the concerned department."
-            )
-
-        # ==============================
-        # SAVE COMPLAINT
-        # ==============================
+        # Save evidence only after all validations have passed.
+        image_path = save_file(image, complaint_id)
+        video_path = save_file(video, complaint_id)
 
         connection.execute(
             """
@@ -1066,15 +472,19 @@ def report():
                 video_path,
                 suspicion_score,
                 validation_message,
+                validation_reasons,
+                duplicate_of,
+                duplicate_similarity,
+                suggested_category,
                 created_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 complaint_id,
                 category,
                 location,
-                date,
+                complaint_date,
                 description,
                 status,
                 department,
@@ -1082,102 +492,72 @@ def report():
                 video_path,
                 suspicion_score,
                 validation_message,
+                analysis["validation_reasons"],
+                analysis["duplicate_of"],
+                analysis["duplicate_similarity"],
+                analysis["suggested_category"],
                 datetime.now().isoformat()
             )
         )
-
         connection.commit()
 
+    except Exception:
+        connection.rollback()
+
+        # Remove files if the database save fails.
+        for filepath in (image_path, video_path):
+            if filepath and os.path.exists(filepath):
+                os.remove(filepath)
+
+        raise
+
+    finally:
         connection.close()
 
-        # ==============================
-        # COMPLAINT HISTORY
-        # ==============================
+    # Record an auditable history of submission and automatic validation.
+    add_history(
+        complaint_id,
+        "Complaint Submitted",
+        "Citizen",
+        "Complaint submitted successfully."
+    )
 
+    if status == "Flagged for Review":
         add_history(
             complaint_id,
-            "Complaint Submitted",
-            "Citizen",
-            "Complaint submitted successfully."
+            "Flagged for Review",
+            "Automatic Validation",
+            validation_message
+        )
+    else:
+        add_history(
+            complaint_id,
+            "Automatically Validated",
+            "Automatic Validation",
+            validation_message
+        )
+        add_history(
+            complaint_id,
+            "Assigned",
+            "System",
+            "Assigned to " + department + "."
         )
 
-        # ==============================
-        # AUTOMATIC VALIDATION HISTORY
-        # ==============================
-
-        if status == "Flagged for Review":
-
-            add_history(
-                complaint_id,
-                "Flagged for Review",
-                "Automatic Validation",
-                validation_message
-            )
-
-        else:
-
-            add_history(
-                complaint_id,
-                "Automatically Validated",
-                "Automatic Validation",
-                validation_message
-            )
-
-            # ==============================
-            # ASSIGNMENT HISTORY
-            # ==============================
-
-            add_history(
-                complaint_id,
-                "Assigned",
-                "System",
-                "Assigned to "
-                + department
-                + "."
-            )
-
-        # ==============================
-        # RECORD SUBMISSION
-        # ==============================
-
-        record_submission()
-
-        # ==============================
-        # NEW CAPTCHA
-        # ==============================
-
-        generate_captcha()
-
-        # ==============================
-        # SUCCESS
-        # ==============================
-
-        return render_template(
-            "success.html",
-            complaint_id=complaint_id,
-            category=category,
-            department=department,
-            status=status,
-            validation_message=validation_message
-        )
-
-    # ==============================
-    # GET REPORT PAGE
-    # ==============================
-
-    captcha_question = (
-        generate_captcha()
-    )
+    record_submission()
+    generate_captcha()
 
     return render_template(
-        "report.html",
-        captcha_question=captcha_question
+        "success.html",
+        complaint_id=complaint_id,
+        category=category,
+        department=department,
+        status=status,
+        validation_message=validation_message
     )
 
-
-# ==============================
+# ==================================================
 # TRACK COMPLAINT
-# ==============================
+# ==================================================
 
 @app.route(
     "/track",
@@ -1186,9 +566,7 @@ def report():
 def track():
 
     complaint = None
-
     history = []
-
     error = None
 
     if request.method == "POST":
@@ -1198,9 +576,7 @@ def track():
             ""
         ).strip().upper()
 
-        connection = (
-            get_db_connection()
-        )
+        connection = get_db_connection()
 
         complaint = connection.execute(
             """
@@ -1227,9 +603,7 @@ def track():
 
         if complaint is None:
 
-            error = (
-                "Complaint ID not found."
-            )
+            error = "Complaint ID not found."
 
     return render_template(
         "track.html",
@@ -1238,10 +612,9 @@ def track():
         error=error
     )
 
-
-# ==============================
+# ==================================================
 # VALIDATOR LOGIN
-# ==============================
+# ==================================================
 
 @app.route(
     "/validator-login",
@@ -1256,207 +629,159 @@ def validator_login():
         username = request.form.get(
             "username",
             ""
-        )
+        ).strip()
 
         password = request.form.get(
             "password",
             ""
         )
 
-        if (
-            username == "validator"
-            and password == "civic123"
-        ):
+        user = authenticate_user(
+            username,
+            password,
+            expected_role="validator"
+        )
 
-            session[
-                "validator_logged_in"
-            ] = True
+        if user:
 
-            return redirect(
-                "/validator"
-            )
+            session.clear()
+            session.permanent = True
 
-        else:
+            session["validator_logged_in"] = True
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            session["role"] = user["role"]
 
-            error = (
-                "Invalid username or password."
-            )
+            return redirect(url_for("validator"))
+
+        error = (
+            "Invalid username or password, "
+            "or your account is inactive."
+        )
 
     return render_template(
         "validator_login.html",
         error=error
     )
 
-
-# ==============================
+# ==================================================
 # VALIDATOR DASHBOARD
-# ==============================
+# ==================================================
 
 @app.route("/validator")
 def validator():
 
-    if not session.get(
-        "validator_logged_in"
-    ):
+    if not validator_required():
 
-        return redirect(
-            "/validator-login"
-        )
-
-    connection = (
-        get_db_connection()
-    )
-
-    complaints = connection.execute(
-        """
-        SELECT *
-        FROM complaints
-        WHERE status = ?
-        ORDER BY id DESC
-        """,
-        (
-            "Flagged for Review",
-        )
-    ).fetchall()
-
-    connection.close()
+        return redirect("/validator-login")
 
     return render_template(
         "validator.html",
-        complaints=complaints
+        complaints=get_review_queue(),
+        recent_reviews=get_recently_reviewed(limit=10),
+        stats=get_review_stats(),
+        username=session.get("username"),
+        min_reason_length=MIN_REJECTION_REASON_LENGTH,
+        max_reason_length=MAX_REJECTION_REASON_LENGTH
     )
 
-
-# ==============================
-# VALIDATE FLAGGED COMPLAINT
-# ==============================
+# ==================================================
+# VALIDATE (APPROVE) FLAGGED COMPLAINT
+# ==================================================
 
 @app.route(
     "/validate/<complaint_id>",
     methods=["POST"]
 )
-def validate_complaint(
-    complaint_id
-):
+def validate_complaint(complaint_id):
 
-    if not session.get(
-        "validator_logged_in"
-    ):
+    if not validator_required():
 
-        return redirect(
-            "/validator-login"
-        )
+        return redirect("/validator-login")
 
-    connection = (
-        get_db_connection()
-    )
+    try:
 
-    result = connection.execute(
-        """
-        UPDATE complaints
-        SET status = ?
-        WHERE complaint_id = ?
-        AND status = ?
-        """,
-        (
-            "Assigned",
+        updated = update_validation_decision(
             complaint_id,
-            "Flagged for Review"
-        )
-    )
-
-    connection.commit()
-
-    connection.close()
-
-    if result.rowcount > 0:
-
-        add_history(
-            complaint_id,
-            "Assigned",
-            "Validator",
-            "Complaint validated and assigned to the concerned department."
+            "approve",
+            validator=session.get("username", "Validator")
         )
 
-    return redirect(
-        "/validator"
-    )
+    except ValueError as error:
 
+        flash(str(error), "error")
+        return redirect("/validator")
 
-# ==============================
+    if updated:
+
+        flash(
+            f"Complaint {complaint_id} approved and assigned "
+            "to its department.",
+            "success"
+        )
+
+    else:
+
+        flash(
+            f"Complaint {complaint_id} could not be approved. "
+            "It may already have been reviewed.",
+            "error"
+        )
+
+    return redirect("/validator")
+
+# ==================================================
 # REJECT COMPLAINT
-# ==============================
+# ==================================================
 
 @app.route(
     "/reject/<complaint_id>",
     methods=["POST"]
 )
-def reject_complaint(
-    complaint_id
-):
+def reject_complaint(complaint_id):
 
-    if not session.get(
-        "validator_logged_in"
-    ):
+    if not validator_required():
 
-        return redirect(
-            "/validator-login"
-        )
+        return redirect("/validator-login")
 
-    connection = (
-        get_db_connection()
-    )
+    try:
 
-    result = connection.execute(
-        """
-        UPDATE complaints
-        SET status = ?
-        WHERE complaint_id = ?
-        AND status = ?
-        """,
-        (
-            "Rejected",
+        updated = update_validation_decision(
             complaint_id,
-            "Flagged for Review"
-        )
-    )
-
-    connection.commit()
-
-    connection.close()
-
-    if result.rowcount > 0:
-
-        add_history(
-            complaint_id,
-            "Rejected",
-            "Validator",
-            "Complaint rejected during validation."
+            "reject",
+            validator=session.get("username", "Validator"),
+            remarks=request.form.get("reason", "")
         )
 
-    return redirect(
-        "/validator"
-    )
+    except ValueError as error:
 
+        flash(str(error), "error")
+        return redirect("/validator")
 
-# ==============================
+    if updated:
+
+        flash(f"Complaint {complaint_id} rejected.", "success")
+
+    else:
+
+        flash(
+            f"Complaint {complaint_id} could not be rejected. "
+            "It may already have been reviewed.",
+            "error"
+        )
+
+    return redirect("/validator")
+
+# ==================================================
 # VALIDATOR LOGOUT
-# ==============================
+# ==================================================
 
-@app.route(
-    "/validator-logout"
-)
+@app.route("/validator-logout")
 def validator_logout():
 
-    session.pop(
-        "validator_logged_in",
-        None
-    )
+    session.clear()
 
-    return redirect(
-        "/validator-login"
-    )
-
+    return redirect(url_for("validator_login"))
 
 # ==================================================
 # DEPARTMENT LOGIN
@@ -1469,34 +794,11 @@ def validator_logout():
 def department_login():
 
     error = None
-
-    department_users = {
-
-        "Municipality": {
-            "username": "municipality",
-            "password": "municipality123"
-        },
-
-        "Pollution Control": {
-            "username": "pollution",
-            "password": "pollution123"
-        },
-
-        "Traffic Department": {
-            "username": "traffic",
-            "password": "traffic123"
-        },
-
-        "Police": {
-            "username": "police",
-            "password": "police123"
-        }
-
-    }
+    selected_department = ""
 
     if request.method == "POST":
 
-        department = request.form.get(
+        selected_department = request.form.get(
             "department",
             ""
         ).strip()
@@ -1511,73 +813,78 @@ def department_login():
             ""
         )
 
-        if (
-            department in department_users
-            and username
-            == department_users[
-                department
-            ]["username"]
-            and password
-            == department_users[
-                department
-            ]["password"]
-        ):
+        if selected_department not in VALID_DEPARTMENTS:
 
-            session[
-                "department_logged_in"
-            ] = True
+            error = "Please select a valid department."
 
-            session[
-                "department"
-            ] = department
+        else:
 
-            return redirect(
-                "/department/"
-                + department
+            user = authenticate_user(
+                username,
+                password,
+                expected_role="department"
             )
 
-        error = (
-            "Invalid department, "
-            "username or password."
-        )
+            if (
+                user
+                and user.get("department") == selected_department
+            ):
+
+                session.clear()
+                session.permanent = True
+
+                session["department_logged_in"] = True
+                session["department"] = user["department"]
+                session["user_id"] = user["id"]
+                session["username"] = user["username"]
+                session["role"] = user["role"]
+
+                return redirect(
+                    url_for(
+                        "department_dashboard",
+                        department=user["department"]
+                    )
+                )
+
+            error = (
+                "Invalid username or password for the selected "
+                "department, or your account is inactive."
+            )
 
     return render_template(
         "department_login.html",
-        error=error
+        departments=list(VALID_DEPARTMENTS),
+        error=error,
+        selected_department=selected_department
     )
-
 
 # ==================================================
 # DEPARTMENT DASHBOARD
 # ==================================================
 
-@app.route(
-    "/department/<department>"
-)
-def department_dashboard(
-    department
-):
+@app.route("/department/<department>")
+def department_dashboard(department):
 
-    if not session.get(
-        "department_logged_in"
+    if (
+        not session.get("department_logged_in")
+        or session.get("role") != "department"
     ):
 
+        return redirect(url_for("department_login"))
+
+    logged_department = session.get("department")
+
+    # Prevent access to another department.
+    if logged_department != department:
+
         return redirect(
-            "/department-login"
+            url_for(
+                "department_dashboard",
+                department=logged_department
+            )
         )
 
-    if session.get(
-        "department"
-    ) != department:
-
-        return redirect(
-            "/department/"
-            + session.get("department")
-        )
-
-    connection = (
-        get_db_connection()
-    )
+    connection = get_db_connection()
 
     complaints = connection.execute(
         """
@@ -1588,7 +895,7 @@ def department_dashboard(
         ORDER BY id DESC
         """,
         (
-            department,
+            logged_department,
             "Assigned",
             "Under Review"
         )
@@ -1598,38 +905,30 @@ def department_dashboard(
 
     return render_template(
         "department.html",
-        department=department,
+        department=logged_department,
         complaints=complaints
     )
 
-
 # ==================================================
-# START REVIEW
+# START DEPARTMENT REVIEW
 # ==================================================
 
 @app.route(
     "/department/review/<complaint_id>",
     methods=["POST"]
 )
-def start_review(
-    complaint_id
-):
+def start_review(complaint_id):
 
-    if not session.get(
-        "department_logged_in"
+    if (
+        not session.get("department_logged_in")
+        or session.get("role") != "department"
     ):
 
-        return redirect(
-            "/department-login"
-        )
+        return redirect(url_for("department_login"))
 
-    department = session.get(
-        "department"
-    )
+    department = session.get("department")
 
-    connection = (
-        get_db_connection()
-    )
+    connection = get_db_connection()
 
     result = connection.execute(
         """
@@ -1648,7 +947,6 @@ def start_review(
     )
 
     connection.commit()
-
     connection.close()
 
     if result.rowcount > 0:
@@ -1661,38 +959,32 @@ def start_review(
         )
 
     return redirect(
-        "/department/"
-        + department
+        url_for(
+            "department_dashboard",
+            department=department
+        )
     )
 
-
 # ==================================================
-# MARK RESOLVED
+# MARK COMPLAINT AS RESOLVED
 # ==================================================
 
 @app.route(
     "/department/resolve/<complaint_id>",
     methods=["POST"]
 )
-def resolve_complaint(
-    complaint_id
-):
+def resolve_complaint(complaint_id):
 
-    if not session.get(
-        "department_logged_in"
+    if (
+        not session.get("department_logged_in")
+        or session.get("role") != "department"
     ):
 
-        return redirect(
-            "/department-login"
-        )
+        return redirect(url_for("department_login"))
 
-    department = session.get(
-        "department"
-    )
+    department = session.get("department")
 
-    connection = (
-        get_db_connection()
-    )
+    connection = get_db_connection()
 
     result = connection.execute(
         """
@@ -1711,7 +1003,6 @@ def resolve_complaint(
     )
 
     connection.commit()
-
     connection.close()
 
     if result.rowcount > 0:
@@ -1724,34 +1015,22 @@ def resolve_complaint(
         )
 
     return redirect(
-        "/department/"
-        + department
+        url_for(
+            "department_dashboard",
+            department=department
+        )
     )
-
 
 # ==================================================
 # DEPARTMENT LOGOUT
 # ==================================================
 
-@app.route(
-    "/department-logout"
-)
+@app.route("/department-logout")
 def department_logout():
 
-    session.pop(
-        "department_logged_in",
-        None
-    )
+    session.clear()
 
-    session.pop(
-        "department",
-        None
-    )
-
-    return redirect(
-        "/department-login"
-    )
-
+    return redirect(url_for("department_login"))
 
 # ==================================================
 # ADMIN LOGIN
@@ -1777,30 +1056,33 @@ def admin_login():
             ""
         )
 
-        if (
-            username == "admin"
-            and password == "admin123"
-        ):
+        user = authenticate_user(
+            username,
+            password,
+            expected_role="admin"
+        )
 
-            session[
-                "admin_logged_in"
-            ] = True
+        if user:
 
-            return redirect(
-                "/admin"
-            )
+            session.clear()
+            session.permanent = True
 
-        else:
+            session["admin_logged_in"] = True
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            session["role"] = user["role"]
 
-            error = (
-                "Invalid username or password."
-            )
+            return redirect(url_for("admin_dashboard"))
+
+        error = (
+            "Invalid username or password, "
+            "or your account is inactive."
+        )
 
     return render_template(
         "admin_login.html",
         error=error
     )
-
 
 # ==================================================
 # ADMIN DASHBOARD
@@ -1809,17 +1091,16 @@ def admin_login():
 @app.route("/admin")
 def admin_dashboard():
 
-    if not session.get(
-        "admin_logged_in"
+    if (
+        not session.get("admin_logged_in")
+        or session.get("role") != "admin"
     ):
 
-        return redirect(
-            "/admin-login"
-        )
+        return redirect(url_for("admin_login"))
 
-    connection = (
-        get_db_connection()
-    )
+    connection = get_db_connection()
+
+    # TOTAL COMPLAINTS
 
     total = connection.execute(
         """
@@ -1827,6 +1108,8 @@ def admin_dashboard():
         FROM complaints
         """
     ).fetchone()["count"]
+
+    # ASSIGNED COMPLAINTS
 
     assigned = connection.execute(
         """
@@ -1837,6 +1120,8 @@ def admin_dashboard():
         ("Assigned",)
     ).fetchone()["count"]
 
+    # UNDER REVIEW
+
     under_review = connection.execute(
         """
         SELECT COUNT(*) AS count
@@ -1845,6 +1130,8 @@ def admin_dashboard():
         """,
         ("Under Review",)
     ).fetchone()["count"]
+
+    # RESOLVED
 
     resolved = connection.execute(
         """
@@ -1855,6 +1142,8 @@ def admin_dashboard():
         ("Resolved",)
     ).fetchone()["count"]
 
+    # FLAGGED
+
     flagged = connection.execute(
         """
         SELECT COUNT(*) AS count
@@ -1864,6 +1153,8 @@ def admin_dashboard():
         ("Flagged for Review",)
     ).fetchone()["count"]
 
+    # REJECTED
+
     rejected = connection.execute(
         """
         SELECT COUNT(*) AS count
@@ -1872,6 +1163,8 @@ def admin_dashboard():
         """,
         ("Rejected",)
     ).fetchone()["count"]
+
+    # DEPARTMENT SUMMARY
 
     department_summary = connection.execute(
         """
@@ -1884,12 +1177,15 @@ def admin_dashboard():
         """
     ).fetchall()
 
+    # RECENT COMPLAINTS
+
     recent_complaints = connection.execute(
         """
         SELECT
             complaint_id,
             category,
             department,
+            location,
             status,
             date
         FROM complaints
@@ -1912,29 +1208,20 @@ def admin_dashboard():
         recent_complaints=recent_complaints
     )
 
-
 # ==================================================
 # ADMIN LOGOUT
 # ==================================================
 
-@app.route(
-    "/admin-logout"
-)
+@app.route("/admin-logout")
 def admin_logout():
 
-    session.pop(
-        "admin_logged_in",
-        None
-    )
+    session.clear()
 
-    return redirect(
-        "/admin-login"
-    )
+    return redirect(url_for("admin_login"))
 
-
-# ==============================
+# ==================================================
 # START APPLICATION
-# ==============================
+# ==================================================
 
 if __name__ == "__main__":
 
@@ -1943,5 +1230,5 @@ if __name__ == "__main__":
     upgrade_database()
 
     app.run(
-        debug=True
+        debug=os.environ.get("FLASK_DEBUG", "0") == "1"
     )

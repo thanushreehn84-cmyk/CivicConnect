@@ -1,483 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Complaint | CivicConnect</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
-    <!-- ==============================
-         NAVBAR
-    =============================== -->
+<header class="navbar">
+    <div class="nav-container">
+        <a class="brand" href="/" style="text-decoration:none;color:inherit;">
+            <div class="brand-icon">CC</div>
+            <div>
+                <h2>CivicConnect</h2>
+                <span>Citizen Complaint Portal</span>
+            </div>
+        </a>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/report">Report an Issue</a>
+            <a href="/#how-it-works">How It Works</a>
+        </nav>
+    </div>
+</header>
 
-    <header class="navbar">
+<main class="cc-track-page">
+    <section class="cc-track-hero">
+        <span class="cc-eyebrow">COMPLAINT STATUS PORTAL</span>
+        <h1>Track your complaint</h1>
+        <p>Stay informed. Enter your Complaint ID to view its current status, progress and history.</p>
+    </section>
 
-        <div class="nav-container">
+    <section class="cc-track-search">
+        <div class="cc-search-icon">⌕</div>
+        <div class="cc-search-copy">
+            <h2>Enter your Complaint ID</h2>
+            <p>Use the unique ID provided after submitting your complaint.</p>
+        </div>
 
-            <div class="brand">
+        <form method="POST" class="cc-track-form">
+            <label for="complaint_id">Complaint ID</label>
+            <div class="cc-search-controls">
+                <input
+                    type="text"
+                    id="complaint_id"
+                    name="complaint_id"
+                    placeholder="e.g. CMP12345"
+                    autocomplete="off"
+                    required>
+                <button type="submit" class="btn primary-btn">Track Complaint</button>
+            </div>
+        </form>
 
-                <div class="brand-icon">
-                    CC
-                </div>
+        {% if error %}
+        <div class="cc-track-error" role="alert">
+            <strong>Complaint not found</strong>
+            <span>{{ error }}</span>
+            <small>Please check the ID and try again.</small>
+        </div>
+        {% endif %}
+    </section>
 
+    {% if complaint %}
+    <section class="cc-track-result">
+        <div class="cc-result-top">
+            <div>
+                <span class="cc-eyebrow">COMPLAINT REFERENCE</span>
+                <h2>{{ complaint["complaint_id"] }}</h2>
+                <p>Your complaint information and latest progress are shown below.</p>
+            </div>
+            <div class="cc-status-pill">
+                <span class="cc-status-indicator"></span>
+                {{ complaint["status"] }}
+            </div>
+        </div>
+
+        <div class="cc-detail-grid">
+            <div class="cc-detail-card">
+                <span>Category</span>
+                <strong>{{ complaint["category"] }}</strong>
+            </div>
+            <div class="cc-detail-card">
+                <span>Assigned Department</span>
+                <strong>{{ complaint["department"] }}</strong>
+            </div>
+            <div class="cc-detail-card">
+                <span>Incident Location</span>
+                <strong>{{ complaint["location"] }}</strong>
+            </div>
+            <div class="cc-detail-card">
+                <span>Date of Incident</span>
+                <strong>{{ complaint["date"] }}</strong>
+            </div>
+        </div>
+
+        <div class="cc-description">
+            <h3>Complaint Description</h3>
+            <p>{{ complaint["description"] }}</p>
+        </div>
+
+        <div class="cc-progress-section">
+            <div class="cc-section-heading">
                 <div>
-                    <h2>CivicConnect</h2>
-                    <span>Citizen Complaint Portal</span>
+                    <span class="cc-eyebrow">STATUS OVERVIEW</span>
+                    <h3>Complaint progress</h3>
                 </div>
-
+                <span class="cc-progress-caption">Follow each stage of your complaint</span>
             </div>
 
-            <nav>
-                <a href="/">Home</a>
-                <a href="/#how-it-works">How It Works</a>
-                <a href="/#about">About</a>
-            </nav>
+            {% set current_status = complaint["status"] %}
 
-        </div>
-
-    </header>
-
-
-    <!-- ==============================
-         TRACK PAGE
-    =============================== -->
-
-    <main class="track-page">
-
-        <div class="track-container">
-
-            <!-- PAGE HEADING -->
-
-            <div class="track-heading">
-
-                <span>COMPLAINT TRACKING</span>
-
-                <h1>
-                    Track Your Complaint
-                </h1>
-
-                <p>
-                    Enter your complaint ID to view the current
-                    status and progress of your complaint.
-                </p>
-
-            </div>
-
-
-            <!-- ==============================
-                 SEARCH FORM
-            =============================== -->
-
-            <div class="track-search-box">
-
-                <form method="POST">
-
-                    <div class="form-group">
-
-                        <label for="complaint_id">
-                            Complaint ID
-                        </label>
-
-                        <input
-                            type="text"
-                            id="complaint_id"
-                            name="complaint_id"
-                            placeholder="Example: CMP12345"
-                            required>
-
-                    </div>
-
-                    <button type="submit"
-                            class="btn primary-btn">
-
-                        Track Complaint
-
-                    </button>
-
-                </form>
-
-            </div>
-
-
-            <!-- ==============================
-                 ERROR
-            =============================== -->
-
-            {% if error %}
-
-            <div class="track-error">
-
-                {{ error }}
-
-            </div>
-
-            {% endif %}
-
-
-            <!-- ==============================
-                 COMPLAINT RESULT
-            =============================== -->
-
-            {% if complaint %}
-
-            <div class="track-result">
-
-                <!-- COMPLAINT SUMMARY -->
-
-                <div class="track-result-header">
-
+            <div class="cc-progress-list">
+                <div class="cc-progress-step
+                    {% if current_status in ['Assigned', 'Under Review', 'Resolved'] %}is-complete
+                    {% elif current_status == 'Flagged for Review' %}is-current
+                    {% elif current_status == 'Rejected' %}is-rejected{% endif %}">
+                    <div class="cc-step-marker">✓</div>
                     <div>
-
-                        <span>
-                            COMPLAINT DETAILS
-                        </span>
-
-                        <h2>
-                            {{ complaint["complaint_id"] }}
-                        </h2>
-
+                        <strong>Complaint Submitted</strong>
+                        <p>Your complaint was successfully received by CivicConnect.</p>
                     </div>
-
-                    <div class="track-status">
-
-                        {{ complaint["status"] }}
-
-                    </div>
-
                 </div>
 
-
-                <!-- DETAILS -->
-
-                <div class="track-details">
-
-                    <div class="track-detail">
-
-                        <span>
-                            Category
-                        </span>
-
-                        <strong>
-                            {{ complaint["category"] }}
-                        </strong>
-
+                <div class="cc-progress-step
+                    {% if current_status in ['Under Review', 'Resolved'] %}is-complete
+                    {% elif current_status == 'Assigned' %}is-current{% endif %}">
+                    <div class="cc-step-marker">2</div>
+                    <div>
+                        <strong>Assigned to Department</strong>
+                        <p>The complaint has been assigned to the concerned department.</p>
                     </div>
-
-
-                    <div class="track-detail">
-
-                        <span>
-                            Department
-                        </span>
-
-                        <strong>
-                            {{ complaint["department"] }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="track-detail">
-
-                        <span>
-                            Location
-                        </span>
-
-                        <strong>
-                            {{ complaint["location"] }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="track-detail">
-
-                        <span>
-                            Date of Incident
-                        </span>
-
-                        <strong>
-                            {{ complaint["date"] }}
-                        </strong>
-
-                    </div>
-
                 </div>
 
-
-                <!-- DESCRIPTION -->
-
-                <div class="track-description">
-
-                    <span>
-                        Complaint Description
-                    </span>
-
-                    <p>
-                        {{ complaint["description"] }}
-                    </p>
-
-                </div>
-
-
-                <!-- ==============================
-                     STATUS PROGRESS
-                =============================== -->
-
-                <div class="track-progress">
-
-                    <h3>
-                        Complaint Progress
-                    </h3>
-
-
-                    <div class="status-timeline">
-
-                        {% set current_status = complaint["status"] %}
-
-                        <!-- SUBMITTED -->
-
-                        <div class="timeline-item
-                            {% if current_status in ['Assigned', 'Under Review', 'Resolved'] %}
-                                completed
-                            {% elif current_status == 'Flagged for Review' %}
-                                active
-                            {% elif current_status == 'Rejected' %}
-                                rejected
-                            {% endif %}">
-
-                            <div class="timeline-dot">
-                                ✓
-                            </div>
-
-                            <div class="timeline-content">
-
-                                <strong>
-                                    Complaint Submitted
-                                </strong>
-
-                                <p>
-                                    Your complaint was successfully
-                                    received by CivicConnect.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- ASSIGNED -->
-
-                        <div class="timeline-item
-                            {% if current_status in ['Under Review', 'Resolved'] %}
-                                completed
-                            {% elif current_status == 'Assigned' %}
-                                active
-                            {% endif %}">
-
-                            <div class="timeline-dot">
-                                2
-                            </div>
-
-                            <div class="timeline-content">
-
-                                <strong>
-                                    Assigned
-                                </strong>
-
-                                <p>
-                                    The complaint has been assigned
-                                    to the concerned department.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- UNDER REVIEW -->
-
-                        <div class="timeline-item
-                            {% if current_status == 'Resolved' %}
-                                completed
-                            {% elif current_status == 'Under Review' %}
-                                active
-                            {% endif %}">
-
-                            <div class="timeline-dot">
-                                3
-                            </div>
-
-                            <div class="timeline-content">
-
-                                <strong>
-                                    Under Review
-                                </strong>
-
-                                <p>
-                                    The department is reviewing
-                                    the complaint.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- RESOLVED -->
-
-                        <div class="timeline-item
-                            {% if current_status == 'Resolved' %}
-                                completed
-                            {% endif %}">
-
-                            <div class="timeline-dot">
-                                4
-                            </div>
-
-                            <div class="timeline-content">
-
-                                <strong>
-                                    Resolved
-                                </strong>
-
-                                <p>
-                                    The complaint has been marked
-                                    as resolved.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
+                <div class="cc-progress-step
+                    {% if current_status == 'Resolved' %}is-complete
+                    {% elif current_status == 'Under Review' %}is-current{% endif %}">
+                    <div class="cc-step-marker">3</div>
+                    <div>
+                        <strong>Under Review</strong>
+                        <p>The department is reviewing the complaint.</p>
                     </div>
-
                 </div>
 
-
-                <!-- ==============================
-                     HISTORY
-                =============================== -->
-
-                {% if history %}
-
-                <div class="track-history">
-
-                    <h3>
-                        Complaint History
-                    </h3>
-
-                    <div class="history-list">
-
-                        {% for item in history %}
-
-                        <div class="history-item">
-
-                            <div class="history-marker">
-                                ✓
-                            </div>
-
-                            <div class="history-content">
-
-                                <strong>
-                                    {{ item["action"] }}
-                                </strong>
-
-                                <span>
-                                    {{ item["timestamp"] }}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        {% endfor %}
-
+                <div class="cc-progress-step
+                    {% if current_status == 'Resolved' %}is-complete{% endif %}">
+                    <div class="cc-step-marker">4</div>
+                    <div>
+                        <strong>Resolved</strong>
+                        <p>The complaint has been marked as resolved.</p>
                     </div>
-
                 </div>
+            </div>
 
+            {% if current_status == 'Rejected' %}
+            <div class="cc-status-note cc-rejected-note">
+                Your complaint is currently marked as rejected.
+                {% if complaint["rejection_reason"] %}
+                <br><strong>Reason:</strong> {{ complaint["rejection_reason"] }}
                 {% endif %}
-
-
             </div>
-
+            {% elif current_status == 'Flagged for Review' %}
+            <div class="cc-status-note">
+                Your complaint has been flagged for review.
+            </div>
             {% endif %}
-
-
-            <!-- ==============================
-                 INFORMATION BOX
-            =============================== -->
-
-            <div class="track-info">
-
-                <h3>
-                    Don't have your Complaint ID?
-                </h3>
-
-                <p>
-                    Your Complaint ID is displayed immediately
-                    after successfully submitting a complaint.
-                    Keep it safe because it is used to retrieve
-                    your complaint status.
-                </p>
-
-                <a href="/report"
-                   class="btn secondary-btn">
-
-                    Report a New Issue
-
-                </a>
-
-            </div>
-
         </div>
 
-    </main>
-
-
-    <!-- ==============================
-         FOOTER
-    =============================== -->
-
-    <footer>
-
-        <div class="footer-container">
-
-            <div>
-
-                <h3>CivicConnect</h3>
-
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
-
+        {% if history %}
+        <div class="cc-history-section">
+            <span class="cc-eyebrow">ACTIVITY RECORD</span>
+            <h3>Complaint history</h3>
+            <div class="cc-history-list">
+                {% for item in history %}
+                <div class="cc-history-item">
+                    <div class="cc-history-marker">✓</div>
+                    <div class="cc-history-text">
+                        <strong>{{ item["status"] }}</strong>
+                        <span>{{ item["timestamp"][:16].replace('T', ' ') if item["timestamp"] else '' }}</span>
+                        {% if item["remarks"] %}<span>{{ item["remarks"] }}</span>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-
-            <div>
-
-                <p>
-                    © 2026 CivicConnect. All rights reserved.
-                </p>
-
-            </div>
-
         </div>
+        {% endif %}
+    </section>
+    {% endif %}
 
-    </footer>
+    <section class="cc-track-help">
+        <div>
+            <span class="cc-eyebrow">NEED TO REPORT SOMETHING?</span>
+            <h3>Help make your community better.</h3>
+            <p>Submit a civic issue and help the concerned department take action.</p>
+        </div>
+        <a href="/report" class="btn primary-btn">Report a New Issue</a>
+    </section>
+</main>
+
+<footer class="cc-track-footer">
+    <div>
+        <strong>CivicConnect</strong>
+        <span>Anonymous Civic Complaint Portal</span>
+    </div>
+    <p>© 2026 CivicConnect. All rights reserved.</p>
+</footer>
 
 </body>
-
 </html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Validator Dashboard | CivicConnect</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- ==============================
+         NAVBAR
+    =============================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    CC
+                </div>
+
+                <div>
+                    <h2>CivicConnect</h2>
+                    <span>Validator Portal</span>
+                </div>
+
+            </div>
+
+            <nav>
+                <a href="/">Home</a>
+                <a href="/validator-logout">Logout</a>
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==============================
+         VALIDATOR DASHBOARD
+    =============================== -->
+
+    <main class="validator-page">
+
+        <div class="validator-container">
+
+            <!-- PAGE HEADING -->
+
+            <div class="validator-heading">
+
+                <span>VALIDATOR PORTAL</span>
+
+                <h1>
+                    Complaint Validation Dashboard
+                </h1>
+
+                <p>
+                    Review complaints that were automatically
+                    flagged by the CivicConnect validation system.
+                </p>
+
+            </div>
+
+
+            <!-- ==============================
+                 INFORMATION BANNER
+            =============================== -->
+
+            <div class="validator-info">
+
+                <div class="validator-info-icon">
+                    !
+                </div>
+
+                <div>
+
+                    <strong>
+                        Complaints Requiring Review
+                    </strong>
+
+                    <p>
+                        These complaints were flagged because
+                        they may contain suspicious or duplicate
+                        content. Review the available information
+                        before making a decision.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 COMPLAINT COUNT
+            =============================== -->
+
+            <div class="validator-summary">
+
+                <div class="validator-summary-card">
+
+                    <span>
+                        Flagged Complaints
+                    </span>
+
+                    <strong>
+                        {{ complaints|length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================
+                 COMPLAINT LIST
+            =============================== -->
+
+            <div class="validator-list">
+
+                {% if complaints %}
+
+                    {% for complaint in complaints %}
+
+                    <div class="validator-card">
+
+                        <!-- CARD HEADER -->
+
+                        <div class="validator-card-header">
+
+                            <div>
+
+                                <span class="complaint-label">
+                                    COMPLAINT ID
+                                </span>
+
+                                <h2>
+                                    {{ complaint["complaint_id"] }}
+                                </h2>
+
+                            </div>
+
+                            <div class="flagged-badge">
+                                Flagged for Review
+                            </div>
+
+                        </div>
+
+
+                        <!-- COMPLAINT DETAILS -->
+
+                        <div class="validator-details">
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Category
+                                </span>
+
+                                <strong>
+                                    {{ complaint["category"] }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Department
+                                </span>
+
+                                <strong>
+                                    {{ complaint["department"] }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Location
+                                </span>
+
+                                <strong>
+                                    {{ complaint["location"] }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="validator-detail">
+
+                                <span>
+                                    Date
+                                </span>
+
+                                <strong>
+                                    {{ complaint["date"] }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="validator-description">
+
+                            <span>
+                                Complaint Description
+                            </span>
+
+                            <p>
+                                {{ complaint["description"] }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- EVIDENCE -->
+
+                        {% if complaint["image"] or complaint["video"] %}
+
+                        <div class="validator-evidence">
+
+                            <strong>
+                                Evidence
+                            </strong>
+
+                            <div class="evidence-links">
+
+                                {% if complaint["image"] %}
+
+                                <a href="/uploads/{{ complaint['image'] }}"
+                                   target="_blank"
+                                   class="evidence-link">
+
+                                    View Image
+
+                                </a>
+
+                                {% endif %}
+
+
+                                {% if complaint["video"] %}
+
+                                <a href="/uploads/{{ complaint['video'] }}"
+                                   target="_blank"
+                                   class="evidence-link">
+
+                                    View Video
+
+                                </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <!-- VALIDATOR ACTIONS -->
+
+                        <div class="validator-actions">
+
+                            <a href="/validate/{{ complaint['complaint_id'] }}"
+                               class="btn primary-btn"
+                               onclick="return confirm('Validate this complaint and assign it to the concerned department?');">
+
+                                ✓ Validate Complaint
+
+                            </a>
+
+
+                            <a href="/reject/{{ complaint['complaint_id'] }}"
+                               class="btn reject-btn"
+                               onclick="return confirm('Are you sure you want to reject this complaint?');">
+
+                                ✕ Reject Complaint
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <!-- NO FLAGGED COMPLAINTS -->
+
+                    <div class="no-complaints">
+
+                        <div class="no-complaints-icon">
+                            ✓
+                        </div>
+
+                        <h2>
+                            No Complaints Require Review
+                        </h2>
+
+                        <p>
+                            There are currently no complaints
+                            waiting for validator review.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ==============================
+                 VALIDATOR PROCESS
+            =============================== -->
+
+            <div class="validator-process">
+
+                <h2>
+                    Validation Process
+                </h2>
+
+                <div class="validator-process-grid">
+
+                    <div class="process-card">
+
+                        <div class="process-number">
+                            1
+                        </div>
+
+                        <h3>
+                            Review
+                        </h3>
+
+                        <p>
+                            Examine the complaint details,
+                            location, description and evidence.
+                        </p>
+
+                    </div>
+
+
+                    <div class="process-card">
+
+                        <div class="process-number">
+                            2
+                        </div>
+
+                        <h3>
+                            Validate
+                        </h3>
+
+                        <p>
+                            Approve legitimate complaints so
+                            they can be assigned to a department.
+                        </p>
+
+                    </div>
+
+
+                    <div class="process-card">
+
+                        <div class="process-number">
+                            3
+                        </div>
+
+                        <h3>
+                            Reject
+                        </h3>
+
+                        <p>
+                            Reject complaints that are determined
+                            to be invalid or inappropriate.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGOUT -->
+
+            <div class="validator-footer">
+
+                <a href="/validator-logout"
+                   class="cancel-btn">
+
+                    Logout from Validator Portal
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
+
+    <footer>
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>CivicConnect</h3>
+
+                <p>
+                    Anonymous Civic Complaint Portal
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    © 2026 CivicConnect. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+
+</html>

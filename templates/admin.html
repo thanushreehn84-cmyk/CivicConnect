@@ -1,511 +1,321 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | CivicConnect</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="cc-admin">
 
-    <!-- ==============================
-         NAVBAR
-    =============================== -->
+<!-- NAVIGATION -->
+<header class="cc-admin-nav">
+    <a class="cc-admin-brand" href="/">
+        <span class="cc-admin-logo">CC</span>
+        <span>
+            <strong>CivicConnect</strong>
+            <small>Administration Portal</small>
+        </span>
+    </a>
 
-    <header class="navbar">
+    <div class="cc-admin-nav-right">
+        <span class="cc-admin-live"><i></i> System Overview</span>
+        <a href="/admin-logout" class="cc-admin-logout">Logout ↗</a>
+    </div>
+</header>
 
-        <div class="nav-container">
+<main class="cc-admin-main">
 
-            <div class="brand">
-
-                <div class="brand-icon">
-                    CC
-                </div>
-
-                <div>
-                    <h2>CivicConnect</h2>
-                    <span>Administration Portal</span>
-                </div>
-
-            </div>
-
-            <nav>
-
-                <a href="/">
-                    Home
-                </a>
-
-                <a href="/admin-logout">
-                    Logout
-                </a>
-
-            </nav>
-
+    <!-- WELCOME -->
+    <section class="cc-admin-welcome">
+        <div>
+            <div class="cc-admin-eyebrow">ADMINISTRATION / DASHBOARD</div>
+            <h1>Welcome, Administrator.</h1>
+            <p>
+                Monitor civic complaints, department activity and
+                resolution progress from one central dashboard.
+            </p>
         </div>
 
-    </header>
+        <div class="cc-admin-date">
+            <span>PORTAL</span>
+            <strong>CivicConnect</strong>
+            <small>Complaint Management System</small>
+        </div>
+    </section>
 
+    <!-- STATISTICS -->
+    <section class="cc-admin-section">
 
-    <!-- ==============================
-         ADMIN DASHBOARD
-    =============================== -->
+        <div class="cc-admin-section-title">
+            <div>
+                <span>AT A GLANCE</span>
+                <h2>Complaint Statistics</h2>
+            </div>
+            <p>Overall complaint status across the system</p>
+        </div>
 
-    <main class="admin-page">
+        <div class="cc-admin-stat-grid">
 
-        <div class="admin-container">
+            <article class="cc-admin-stat cc-stat-total">
+                <div class="cc-stat-top">
+                    <span>Total Complaints</span>
+                    <span class="cc-stat-icon">▤</span>
+                </div>
+                <strong>{{ total }}</strong>
+                <small>All submitted complaints</small>
+            </article>
 
+            <article class="cc-admin-stat cc-stat-assigned">
+                <div class="cc-stat-top">
+                    <span>Assigned</span>
+                    <span class="cc-stat-icon">↗</span>
+                </div>
+                <strong>{{ assigned }}</strong>
+                <small>Awaiting department action</small>
+            </article>
 
-            <!-- ==============================
-                 PAGE HEADING
-            =============================== -->
+            <article class="cc-admin-stat cc-stat-review">
+                <div class="cc-stat-top">
+                    <span>Under Review</span>
+                    <span class="cc-stat-icon">◷</span>
+                </div>
+                <strong>{{ under_review }}</strong>
+                <small>Currently being investigated</small>
+            </article>
 
-            <div class="admin-heading">
+            <article class="cc-admin-stat cc-stat-resolved">
+                <div class="cc-stat-top">
+                    <span>Resolved</span>
+                    <span class="cc-stat-icon">✓</span>
+                </div>
+                <strong>{{ resolved }}</strong>
+                <small>Successfully completed</small>
+            </article>
 
-                <span>ADMINISTRATION PORTAL</span>
+            <article class="cc-admin-stat cc-stat-flagged">
+                <div class="cc-stat-top">
+                    <span>Flagged</span>
+                    <span class="cc-stat-icon">!</span>
+                </div>
+                <strong>{{ flagged }}</strong>
+                <small>Require validation review</small>
+            </article>
 
-                <h1>
-                    CivicConnect Dashboard
-                </h1>
+            <article class="cc-admin-stat cc-stat-rejected">
+                <div class="cc-stat-top">
+                    <span>Rejected</span>
+                    <span class="cc-stat-icon">×</span>
+                </div>
+                <strong>{{ rejected }}</strong>
+                <small>Rejected complaints</small>
+            </article>
 
-                <p>
-                    Monitor complaint activity, validation,
-                    department processing and resolution status.
-                </p>
+        </div>
+    </section>
 
+    <!-- COMPLAINT WORKFLOW -->
+    <section class="cc-admin-section">
+
+        <div class="cc-admin-section-title">
+            <div>
+                <span>WORKFLOW</span>
+                <h2>Complaint Processing</h2>
+            </div>
+            <p>Complaint processing overview</p>
+        </div>
+
+        <div class="cc-admin-workflow">
+
+            <div class="cc-workflow-step">
+                <span class="cc-workflow-number">01</span>
+                <div>
+                    <small>STAGE 01</small>
+                    <h3>Submitted</h3>
+                    <strong>{{ total }}</strong>
+                    <p>Complaints received</p>
+                </div>
             </div>
 
+            <div class="cc-workflow-connector"></div>
 
-            <!-- ==============================
-                 STATISTICS
-            =============================== -->
-
-            <div class="admin-stats">
-
-
-                <!-- TOTAL -->
-
-                <div class="admin-stat-card">
-
-                    <div class="admin-stat-label">
-                        Total Complaints
-                    </div>
-
-                    <div class="admin-stat-number">
-                        {{ total }}
-                    </div>
-
-                    <p>
-                        All submitted complaints
-                    </p>
-
+            <div class="cc-workflow-step">
+                <span class="cc-workflow-number">02</span>
+                <div>
+                    <small>STAGE 02</small>
+                    <h3>Validation</h3>
+                    <strong>{{ flagged }}</strong>
+                    <p>Flagged for review</p>
                 </div>
-
-
-                <!-- ASSIGNED -->
-
-                <div class="admin-stat-card">
-
-                    <div class="admin-stat-label">
-                        Assigned
-                    </div>
-
-                    <div class="admin-stat-number">
-                        {{ assigned }}
-                    </div>
-
-                    <p>
-                        Waiting for department action
-                    </p>
-
-                </div>
-
-
-                <!-- UNDER REVIEW -->
-
-                <div class="admin-stat-card">
-
-                    <div class="admin-stat-label">
-                        Under Review
-                    </div>
-
-                    <div class="admin-stat-number">
-                        {{ under_review }}
-                    </div>
-
-                    <p>
-                        Currently being investigated
-                    </p>
-
-                </div>
-
-
-                <!-- RESOLVED -->
-
-                <div class="admin-stat-card">
-
-                    <div class="admin-stat-label">
-                        Resolved
-                    </div>
-
-                    <div class="admin-stat-number">
-                        {{ resolved }}
-                    </div>
-
-                    <p>
-                        Successfully completed
-                    </p>
-
-                </div>
-
-
-                <!-- FLAGGED -->
-
-                <div class="admin-stat-card">
-
-                    <div class="admin-stat-label">
-                        Flagged
-                    </div>
-
-                    <div class="admin-stat-number">
-                        {{ flagged }}
-                    </div>
-
-                    <p>
-                        Waiting for validation
-                    </p>
-
-                </div>
-
-
-                <!-- REJECTED -->
-
-                <div class="admin-stat-card">
-
-                    <div class="admin-stat-label">
-                        Rejected
-                    </div>
-
-                    <div class="admin-stat-number">
-                        {{ rejected }}
-                    </div>
-
-                    <p>
-                        Rejected complaints
-                    </p>
-
-                </div>
-
             </div>
 
+            <div class="cc-workflow-connector"></div>
 
-            <!-- ==============================
-                 SYSTEM OVERVIEW
-            =============================== -->
-
-            <div class="admin-section">
-
-                <div class="admin-section-heading">
-
-                    <span>
-                        SYSTEM OVERVIEW
-                    </span>
-
-                    <h2>
-                        Complaint Processing
-                    </h2>
-
-                    <p>
-                        Overview of complaints as they move
-                        through the CivicConnect workflow.
-                    </p>
-
+            <div class="cc-workflow-step">
+                <span class="cc-workflow-number">03</span>
+                <div>
+                    <small>STAGE 03</small>
+                    <h3>Department</h3>
+                    <strong>{{ assigned + under_review }}</strong>
+                    <p>Being processed</p>
                 </div>
-
-
-                <div class="admin-workflow">
-
-                    <div class="admin-workflow-step">
-
-                        <div class="admin-workflow-number">
-                            1
-                        </div>
-
-                        <h3>
-                            Submitted
-                        </h3>
-
-                        <strong>
-                            {{ total }}
-                        </strong>
-
-                        <p>
-                            Complaints received
-                        </p>
-
-                    </div>
-
-
-                    <div class="admin-workflow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="admin-workflow-step">
-
-                        <div class="admin-workflow-number">
-                            2
-                        </div>
-
-                        <h3>
-                            Validation
-                        </h3>
-
-                        <strong>
-                            {{ flagged }}
-                        </strong>
-
-                        <p>
-                            Flagged for review
-                        </p>
-
-                    </div>
-
-
-                    <div class="admin-workflow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="admin-workflow-step">
-
-                        <div class="admin-workflow-number">
-                            3
-                        </div>
-
-                        <h3>
-                            Department
-                        </h3>
-
-                        <strong>
-                            {{ assigned + under_review }}
-                        </strong>
-
-                        <p>
-                            Being processed
-                        </p>
-
-                    </div>
-
-
-                    <div class="admin-workflow-arrow">
-                        →
-                    </div>
-
-
-                    <div class="admin-workflow-step">
-
-                        <div class="admin-workflow-number">
-                            4
-                        </div>
-
-                        <h3>
-                            Resolved
-                        </h3>
-
-                        <strong>
-                            {{ resolved }}
-                        </strong>
-
-                        <p>
-                            Issues completed
-                        </p>
-
-                    </div>
-
-                </div>
-
             </div>
 
+            <div class="cc-workflow-connector"></div>
 
-            <!-- ==============================
-                 DEPARTMENT SUMMARY
-            =============================== -->
-
-            <div class="admin-section">
-
-                <div class="admin-section-heading">
-
-                    <span>
-                        DEPARTMENT OVERVIEW
-                    </span>
-
-                    <h2>
-                        Complaints by Department
-                    </h2>
-
-                    <p>
-                        Number of complaints currently associated
-                        with each department.
-                    </p>
-
+            <div class="cc-workflow-step">
+                <span class="cc-workflow-number">04</span>
+                <div>
+                    <small>STAGE 04</small>
+                    <h3>Resolved</h3>
+                    <strong>{{ resolved }}</strong>
+                    <p>Issues completed</p>
                 </div>
+            </div>
 
+        </div>
+    </section>
 
-                <div class="department-summary-table">
+    <!-- DEPARTMENT SUMMARY -->
+    <section class="cc-admin-section">
 
-                    {% if department_summary %}
+        <div class="cc-admin-section-title">
+            <div>
+                <span>DEPARTMENT PERFORMANCE</span>
+                <h2>Complaints by Department</h2>
+            </div>
+            <p>Distribution across departments</p>
+        </div>
 
-                        {% for department, count in department_summary.items() %}
+        <div class="cc-admin-panel">
 
-                        <div class="department-summary-row">
+            {% if department_summary %}
 
-                            <div class="department-summary-name">
+                {% set ns = namespace(max_count=0) %}
 
-                                <strong>
-                                    {{ department }}
-                                </strong>
-
-                            </div>
-
-                            <div class="department-summary-count">
-
-                                {{ count }}
-
-                            </div>
-
-                        </div>
-
-                        {% endfor %}
-
-                    {% else %}
-
-                        <div class="admin-empty">
-
-                            No department data available.
-
-                        </div>
-
+                {% for row in department_summary %}
+                    {% if row["count"] > ns.max_count %}
+                        {% set ns.max_count = row["count"] %}
                     {% endif %}
+                {% endfor %}
 
+                {% for row in department_summary %}
+
+                    <div class="cc-dept-row">
+
+                        <div class="cc-dept-label">
+                            <strong>
+                                {{ row["department"] or "Unassigned" }}
+                            </strong>
+
+                            <span>
+                                {{ row["count"] }} complaints
+                            </span>
+                        </div>
+
+                        <div class="cc-dept-track">
+                            <div
+                                class="cc-dept-fill"
+                                data-width="{{ (row['count'] / ns.max_count * 100) if ns.max_count else 0 }}">
+                            </div>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="cc-admin-empty">
+                    <span>▤</span>
+                    <h3>No Department Data Available</h3>
+                    <p>Department statistics will appear here when complaints are recorded.</p>
                 </div>
 
+            {% endif %}
+
+        </div>
+    </section>
+
+    <!-- RECENT COMPLAINTS -->
+    <section class="cc-admin-section">
+
+        <div class="cc-admin-section-title">
+            <div>
+                <span>LATEST SUBMISSIONS</span>
+                <h2>Recent Complaints</h2>
             </div>
+            <p>Latest 10 complaints submitted</p>
+        </div>
 
+        <div class="cc-admin-panel cc-admin-table-panel">
 
-            <!-- ==============================
-                 RECENT COMPLAINTS
-            =============================== -->
+            {% if recent_complaints %}
 
-            <div class="admin-section">
+                <div class="cc-admin-table-scroll">
 
-                <div class="admin-section-heading">
-
-                    <span>
-                        RECENT ACTIVITY
-                    </span>
-
-                    <h2>
-                        Recent Complaints
-                    </h2>
-
-                    <p>
-                        Recently submitted complaints in the
-                        CivicConnect system.
-                    </p>
-
-                </div>
-
-
-                {% if recent_complaints %}
-
-                <div class="admin-table-wrapper">
-
-                    <table class="admin-table">
+                    <table class="cc-admin-table">
 
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Complaint ID
-                                </th>
-
-                                <th>
-                                    Category
-                                </th>
-
-                                <th>
-                                    Department
-                                </th>
-
-                                <th>
-                                    Location
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
+                                <th>Complaint ID</th>
+                                <th>Category</th>
+                                <th>Department</th>
+                                <th>Date</th>
+                                <th>Status</th>
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
                             {% for complaint in recent_complaints %}
 
-                            <tr>
+                                <tr>
 
-                                <td>
-                                    <strong>
-                                        {{ complaint["complaint_id"] }}
-                                    </strong>
-                                </td>
+                                    <td>
+                                        <strong class="cc-complaint-id">
+                                            {{ complaint["complaint_id"] }}
+                                        </strong>
+                                    </td>
 
-                                <td>
-                                    {{ complaint["category"] }}
-                                </td>
+                                    <td>
+                                        {{ complaint["category"] }}
+                                    </td>
 
-                                <td>
-                                    {{ complaint["department"] }}
-                                </td>
+                                    <td>
+                                        {{ complaint["department"] or "—" }}
+                                    </td>
 
-                                <td>
-                                    {{ complaint["location"] }}
-                                </td>
+                                    <td>
+                                        {{ complaint["date"] or "—" }}
+                                    </td>
 
-                                <td>
+                                    <td>
 
-                                    <span class="admin-status
-                                        {% if complaint['status'] == 'Assigned' %}
-                                            status-assigned
-                                        {% elif complaint['status'] == 'Under Review' %}
-                                            status-review
-                                        {% elif complaint['status'] == 'Resolved' %}
-                                            status-resolved
-                                        {% elif complaint['status'] == 'Flagged for Review' %}
-                                            status-flagged
-                                        {% elif complaint['status'] == 'Rejected' %}
-                                            status-rejected
-                                        {% endif %}">
+                                        {% set status = complaint["status"] %}
 
-                                        {{ complaint["status"] }}
+                                        <span class="cc-status
+                                            {% if status == 'Assigned' %}
+                                                cc-status-assigned
+                                            {% elif status == 'Under Review' %}
+                                                cc-status-review
+                                            {% elif status == 'Resolved' %}
+                                                cc-status-resolved
+                                            {% elif status == 'Flagged for Review' %}
+                                                cc-status-flagged
+                                            {% elif status == 'Rejected' %}
+                                                cc-status-rejected
+                                            {% endif %}">
 
-                                    </span>
+                                            {{ status }}
 
-                                </td>
+                                        </span>
 
-                            </tr>
+                                    </td>
+
+                                </tr>
 
                             {% endfor %}
 
@@ -515,183 +325,81 @@
 
                 </div>
 
-                {% else %}
+            {% else %}
 
-                <div class="admin-empty">
-
-                    <div class="no-complaints-icon">
-                        ✓
-                    </div>
-
-                    <h3>
-                        No Complaints Yet
-                    </h3>
-
-                    <p>
-                        No complaints have been submitted
-                        to the CivicConnect system.
-                    </p>
-
+                <div class="cc-admin-empty">
+                    <span>✓</span>
+                    <h3>No Complaints Yet</h3>
+                    <p>New submissions will appear here.</p>
                 </div>
 
-                {% endif %}
-
-            </div>
-
-
-            <!-- ==============================
-                 ADMIN RESPONSIBILITIES
-            =============================== -->
-
-            <div class="admin-section">
-
-                <div class="admin-section-heading">
-
-                    <span>
-                        ADMINISTRATION
-                    </span>
-
-                    <h2>
-                        System Monitoring
-                    </h2>
-
-                </div>
-
-
-                <div class="admin-monitor-grid">
-
-
-                    <div class="admin-monitor-card">
-
-                        <div class="admin-monitor-icon">
-                            ✓
-                        </div>
-
-                        <h3>
-                            Complaint Monitoring
-                        </h3>
-
-                        <p>
-                            Monitor the overall number and
-                            status of civic complaints.
-                        </p>
-
-                    </div>
-
-
-                    <div class="admin-monitor-card">
-
-                        <div class="admin-monitor-icon">
-                            !
-                        </div>
-
-                        <h3>
-                            Validation Monitoring
-                        </h3>
-
-                        <p>
-                            Track complaints that have been
-                            flagged for manual validation.
-                        </p>
-
-                    </div>
-
-
-                    <div class="admin-monitor-card">
-
-                        <div class="admin-monitor-icon">
-                            ↗
-                        </div>
-
-                        <h3>
-                            Department Monitoring
-                        </h3>
-
-                        <p>
-                            Observe how complaints are being
-                            processed by different departments.
-                        </p>
-
-                    </div>
-
-
-                    <div class="admin-monitor-card">
-
-                        <div class="admin-monitor-icon">
-                            ✓
-                        </div>
-
-                        <h3>
-                            Resolution Monitoring
-                        </h3>
-
-                        <p>
-                            Track complaints that have reached
-                            the resolved stage.
-                        </p>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
-
-            <!-- ==============================
-                 LOGOUT
-            =============================== -->
-
-            <div class="admin-footer">
-
-                <a href="/admin-logout"
-                   class="cancel-btn">
-
-                    Logout from Admin Portal
-
-                </a>
-
-            </div>
-
+            {% endif %}
 
         </div>
+    </section>
 
-    </main>
+    <!-- ADMIN RESPONSIBILITIES -->
+    <section class="cc-admin-section">
 
-
-    <!-- ==============================
-         FOOTER
-    =============================== -->
-
-    <footer>
-
-        <div class="footer-container">
-
+        <div class="cc-admin-section-title">
             <div>
-
-                <h3>
-                    CivicConnect
-                </h3>
-
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
-
+                <span>ADMINISTRATION</span>
+                <h2>System Monitoring</h2>
             </div>
-
-
-            <div>
-
-                <p>
-                    © 2026 CivicConnect. All rights reserved.
-                </p>
-
-            </div>
-
+            <p>Key administrative responsibilities</p>
         </div>
 
+        <div class="cc-admin-stat-grid">
+
+            <article class="cc-admin-stat">
+                <div class="cc-stat-top">
+                    <span>Complaint Monitoring</span>
+                    <span class="cc-stat-icon">✓</span>
+                </div>
+                <small>Monitor complaint volume and status across the system.</small>
+            </article>
+
+            <article class="cc-admin-stat">
+                <div class="cc-stat-top">
+                    <span>Validation Monitoring</span>
+                    <span class="cc-stat-icon">!</span>
+                </div>
+                <small>Track complaints flagged for manual validation.</small>
+            </article>
+
+            <article class="cc-admin-stat">
+                <div class="cc-stat-top">
+                    <span>Department Monitoring</span>
+                    <span class="cc-stat-icon">↗</span>
+                </div>
+                <small>Observe complaint processing across departments.</small>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="cc-admin-footer">
+        <div>
+            <strong>CivicConnect</strong>
+            <span>Anonymous Civic Complaint Portal</span>
+        </div>
+
+        <span>Administration Dashboard · © 2026</span>
     </footer>
 
-</body>
+</main>
 
+<!-- DEPARTMENT BAR WIDTH SCRIPT -->
+<script>
+document.querySelectorAll(".cc-dept-fill").forEach(function (bar) {
+    const width = Number(bar.dataset.width);
+
+    if (Number.isFinite(width)) {
+        bar.style.width = Math.max(0, Math.min(100, width)) + "%";
+    }
+});
+</script>
+
+</body>
 </html>

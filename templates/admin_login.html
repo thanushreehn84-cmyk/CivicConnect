@@ -1,208 +1,69 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | CivicConnect</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<body class="cc-auth-page">
 
-<body>
+<header class="cc-auth-nav">
+    <a href="/" class="cc-auth-brand">
+        <span class="cc-auth-logo">CC</span>
+        <span><strong>CivicConnect</strong><small>Anonymous Civic Complaint Portal</small></span>
+    </a>
+    <a href="/" class="cc-auth-home">← Back to Home</a>
+</header>
 
-    <!-- ==============================
-         NAVBAR
-    =============================== -->
-
-    <header class="navbar">
-
-        <div class="nav-container">
-
-            <div class="brand">
-
-                <div class="brand-icon">
-                    CC
-                </div>
-
-                <div>
-                    <h2>CivicConnect</h2>
-                    <span>Citizen Complaint Portal</span>
-                </div>
-
-            </div>
-
-            <nav>
-
-                <a href="/">
-                    Home
-                </a>
-
-                <a href="/#how-it-works">
-                    How It Works
-                </a>
-
-                <a href="/#about">
-                    About
-                </a>
-
-            </nav>
-
+<main class="cc-auth-main">
+    <section class="cc-auth-intro">
+        <span class="cc-auth-kicker">SECURE ACCESS</span>
+        <h1>Manage your city.<br><span>Make a difference.</span></h1>
+        <p>Access the administration portal to oversee civic complaints, monitor departments and track resolution progress.</p>
+        <div class="cc-auth-points">
+            <div><span>✓</span> Centralised complaint monitoring</div>
+            <div><span>✓</span> Department performance overview</div>
+            <div><span>✓</span> Transparent resolution tracking</div>
         </div>
+        <div class="cc-auth-decoration">CIVICCONNECT</div>
+    </section>
 
-    </header>
+    <section class="cc-auth-card">
+        <div class="cc-auth-icon">A</div>
+        <span class="cc-auth-label">ADMINISTRATION PORTAL</span>
+        <h2>Welcome back</h2>
+        <p class="cc-auth-subtitle">Sign in to access your admin dashboard.</p>
 
+        {% if error %}
+        <div class="cc-auth-error" role="alert">{{ error }}</div>
+        {% endif %}
 
-    <!-- ==============================
-         ADMIN LOGIN
-    =============================== -->
-
-    <main class="login-page">
-
-        <div class="login-container">
-
-            <div class="login-box">
-
-                <!-- ICON -->
-
-                <div class="login-icon">
-                    A
-                </div>
-
-
-                <!-- HEADING -->
-
-                <div class="login-heading">
-
-                    <span>ADMINISTRATION PORTAL</span>
-
-                    <h1>
-                        Admin Login
-                    </h1>
-
-                    <p>
-                        Access the CivicConnect administration
-                        dashboard and monitor complaint activity.
-                    </p>
-
-                </div>
-
-
-                <!-- ERROR -->
-
-                {% if error %}
-
-                <div class="login-error">
-
-                    {{ error }}
-
-                </div>
-
-                {% endif %}
-
-
-                <!-- LOGIN FORM -->
-
-                <form method="POST">
-
-                    <div class="form-group">
-
-                        <label for="username">
-                            Username
-                        </label>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter admin username"
-                            required>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="password">
-                            Password
-                        </label>
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter admin password"
-                            required>
-
-                    </div>
-
-
-                    <button type="submit"
-                            class="btn primary-btn">
-
-                        Login to Admin Portal
-
-                    </button>
-
-                </form>
-
-
-                <!-- FOOTER -->
-
-                <div class="login-footer">
-
-                    <a href="/">
-                        ← Back to Home
-                    </a>
-
-                </div>
-
+        <form method="POST">
+            <div class="cc-auth-field">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"
+                       placeholder="Enter your username" autocomplete="username" required>
             </div>
 
-        </div>
-
-    </main>
-
-
-    <!-- ==============================
-         FOOTER
-    =============================== -->
-
-    <footer>
-
-        <div class="footer-container">
-
-            <div>
-
-                <h3>
-                    CivicConnect
-                </h3>
-
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
-
+            <div class="cc-auth-field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Enter your password" autocomplete="current-password" required>
             </div>
 
+            <button type="submit" class="cc-auth-submit">Sign in to Admin Portal <span>→</span></button>
+        </form>
 
-            <div>
+        <div class="cc-auth-security"><span>▣</span> Secure administrator access</div>
+        <div class="cc-auth-bottom"><a href="/">Return to CivicConnect home</a></div>
+    </section>
+</main>
 
-                <p>
-                    © 2026 CivicConnect. All rights reserved.
-                </p>
-
-            </div>
-
-        </div>
-
-    </footer>
-
+<footer class="cc-auth-footer">
+    <span>© 2026 CivicConnect</span>
+    <span>Anonymous Civic Complaint Portal</span>
+</footer>
 </body>
-
 </html>

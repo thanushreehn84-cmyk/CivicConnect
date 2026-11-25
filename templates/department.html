@@ -1,331 +1,213 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ department }} | CivicConnect</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
-
 <body>
 
-
 <header class="navbar">
-
     <div class="nav-container">
-
         <div class="brand">
-
-            <div class="brand-icon">
-                CC
-            </div>
-
+            <div class="brand-icon">CC</div>
             <div>
-
                 <h2>CivicConnect</h2>
-
-                <span>Department Dashboard</span>
-
+                <span>Department Portal</span>
             </div>
-
         </div>
-
-
         <nav>
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/track">
-                Track Complaint
-            </a>
-
+            <a href="/">Home</a>
+            <a href="/track">Track Complaint</a>
+            <a href="/department-logout">Logout</a>
         </nav>
-
     </div>
-
 </header>
 
+<main class="dd-page">
 
+    <section class="dd-welcome">
+        <div>
+            <span class="dd-eyebrow">CIVICCONNECT / DEPARTMENT PORTAL</span>
+            <h1>Department Dashboard</h1>
+            <p>Welcome to your department workspace. Review and manage the complaints assigned to your team.</p>
+            <div class="dd-department-name">{{ department }}</div>
+        </div>
+        <div class="dd-welcome-icon">⌂</div>
+    </section>
 
-<main class="track-page">
+    <section class="dd-summary-grid">
+        <div class="dd-summary-card">
+            <div class="dd-summary-icon dd-blue">▤</div>
+            <div>
+                <span>Total active complaints</span>
+                <strong>{{ complaints|length }}</strong>
+            </div>
+        </div>
 
-    <div class="track-container">
+        <div class="dd-summary-card">
+            <div class="dd-summary-icon dd-orange">◷</div>
+            <div>
+                <span>Awaiting review</span>
+                <strong>{{ complaints|selectattr('status', 'equalto', 'Assigned')|list|length }}</strong>
+            </div>
+        </div>
 
+        <div class="dd-summary-card">
+            <div class="dd-summary-icon dd-purple">↻</div>
+            <div>
+                <span>Under review</span>
+                <strong>{{ complaints|selectattr('status', 'equalto', 'Under Review')|list|length }}</strong>
+            </div>
+        </div>
+    </section>
 
-        <div class="track-heading">
+    <section class="dd-complaints-section">
+        <div class="dd-section-heading">
+            <div>
+                <span class="dd-eyebrow">DEPARTMENT WORKSPACE</span>
+                <h2>Assigned complaints</h2>
+                <p>Review the details and update each complaint as work progresses.</p>
+            </div>
+            <span class="dd-total-pill">{{ complaints|length }} active</span>
+        </div>
 
-            <span>DEPARTMENT PORTAL</span>
+        {% if complaints %}
+        <div class="dd-complaint-list">
 
-            <h1>
-                {{ department }}
-            </h1>
+            {% for complaint in complaints %}
+            <article class="dd-complaint-card">
 
-            <p>
-                Manage complaints assigned to your department.
-            </p>
+                <div class="dd-card-header">
+                    <div>
+                        <span class="dd-label">COMPLAINT REFERENCE</span>
+                        <h3>{{ complaint["complaint_id"] }}</h3>
+                    </div>
+
+                    {% if complaint["status"] == "Assigned" %}
+                    <span class="dd-status dd-assigned">● Assigned</span>
+                    {% elif complaint["status"] == "Under Review" %}
+                    <span class="dd-status dd-review">● Under Review</span>
+                    {% else %}
+                    <span class="dd-status">{{ complaint["status"] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="dd-details-grid">
+                    <div class="dd-detail">
+                        <span>Category</span>
+                        <strong>{{ complaint["category"] }}</strong>
+                    </div>
+                    <div class="dd-detail">
+                        <span>Location</span>
+                        <strong>{{ complaint["location"] }}</strong>
+                    </div>
+                    <div class="dd-detail">
+                        <span>Incident date</span>
+                        <strong>{{ complaint["date"] }}</strong>
+                    </div>
+                    <div class="dd-detail">
+                        <span>Current status</span>
+                        <strong>{{ complaint["status"] }}</strong>
+                    </div>
+                </div>
+
+                <div class="dd-description">
+                    <span class="dd-label">COMPLAINT DESCRIPTION</span>
+                    <p>{{ complaint["description"] }}</p>
+                </div>
+
+                {% if complaint["validation_message"] %}
+                <div class="dd-validation">
+                    <span class="dd-label">AUTOMATIC VALIDATION INFORMATION</span>
+                    <p>{{ complaint["validation_message"] }}</p>
+                </div>
+                {% endif %}
+
+                <div class="dd-card-footer">
+                    <div class="dd-action-info">
+                        {% if complaint["status"] == "Assigned" %}
+                        <strong>Action required</strong>
+                        <span>Begin reviewing this complaint.</span>
+                        {% elif complaint["status"] == "Under Review" %}
+                        <strong>Review in progress</strong>
+                        <span>Update the complaint once the issue is resolved.</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="dd-actions">
+                        {% if complaint["status"] == "Assigned" %}
+                        <form method="POST"
+                              action="/department/review/{{ complaint['complaint_id'] }}"
+                              onsubmit="return confirm('Start reviewing this complaint?');">
+                            <button type="submit" class="dd-primary-action">
+                                Start Review →
+                            </button>
+                        </form>
+
+                        {% elif complaint["status"] == "Under Review" %}
+                        <form method="POST"
+                              action="/department/resolve/{{ complaint['complaint_id'] }}"
+                              onsubmit="return confirm('Mark this complaint as resolved?');">
+                            <button type="submit" class="dd-resolve-action">
+                                ✓ Mark as Resolved
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </article>
+            {% endfor %}
 
         </div>
 
-
-
-        {% if complaints %}
-
-
-            {% for complaint in complaints %}
-
-
-            <div class="track-result">
-
-
-                <!-- COMPLAINT HEADER -->
-
-                <div class="track-result-header">
-
-                    <div>
-
-                        <span>
-                            COMPLAINT ID
-                        </span>
-
-                        <h2>
-                            {{ complaint["complaint_id"] }}
-                        </h2>
-
-                    </div>
-
-
-                    <div class="track-status">
-
-                        {{ complaint["status"] }}
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- COMPLAINT DETAILS -->
-
-                <div class="track-details">
-
-
-                    <div>
-
-                        <span>
-                            Category
-                        </span>
-
-                        <strong>
-                            {{ complaint["category"] }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Location
-                        </span>
-
-                        <strong>
-                            {{ complaint["location"] }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Date
-                        </span>
-
-                        <strong>
-                            {{ complaint["date"] }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Status
-                        </span>
-
-                        <strong>
-                            {{ complaint["status"] }}
-                        </strong>
-
-                    </div>
-
-
-                </div>
-
-
-
-                <!-- DESCRIPTION -->
-
-                <div class="track-description">
-
-                    <span>
-                        Complaint Description
-                    </span>
-
-                    <p>
-                        {{ complaint["description"] }}
-                    </p>
-
-                </div>
-
-
-
-                <!-- VALIDATION INFORMATION -->
-
-                <div class="track-description">
-
-                    <span>
-                        Automatic Validation
-                    </span>
-
-                    <p>
-
-                        {{ complaint["validation_message"] }}
-
-                    </p>
-
-                </div>
-
-
-
-                <!-- ACTION BUTTONS -->
-
-                <div class="success-buttons">
-
-
-                    {% if complaint["status"] == "Assigned" %}
-
-
-                    <form
-                        method="POST"
-                        action="/department/review/{{ complaint['complaint_id'] }}"
-                    >
-
-                        <button
-                            type="submit"
-                            class="btn primary-btn"
-                        >
-
-                            Start Review
-
-                        </button>
-
-                    </form>
-
-
-                    {% elif complaint["status"] == "Under Review" %}
-
-
-                    <form
-                        method="POST"
-                        action="/department/resolve/{{ complaint['complaint_id'] }}"
-                    >
-
-                        <button
-                            type="submit"
-                            class="btn primary-btn"
-                        >
-
-                            Mark as Resolved
-
-                        </button>
-
-                    </form>
-
-
-                    {% endif %}
-
-
-                </div>
-
-
-            </div>
-
-
-            {% endfor %}
-
-
         {% else %}
-
-
-            <div class="track-result">
-
-                <h2>
-                    No complaints assigned
-                </h2>
-
-                <p>
-                    There are currently no complaints
-                    requiring action from this department.
-                </p>
-
-            </div>
-
-
+        <div class="dd-empty">
+            <div class="dd-empty-icon">✓</div>
+            <h3>No active complaints</h3>
+            <p>There are currently no complaints assigned to {{ department }} that require action.</p>
+            <span>New validated complaints will appear here automatically.</span>
+        </div>
         {% endif %}
+    </section>
 
+    <section class="dd-guidance">
+        <span class="dd-eyebrow">WORKFLOW GUIDE</span>
+        <h2>Managing a complaint</h2>
 
+        <div class="dd-guidance-grid">
+            <div class="dd-guidance-card">
+                <span>01</span>
+                <h3>Review assignment</h3>
+                <p>Check the complaint category, location and description.</p>
+            </div>
+            <div class="dd-guidance-card">
+                <span>02</span>
+                <h3>Start review</h3>
+                <p>Move an assigned complaint into the Under Review stage.</p>
+            </div>
+            <div class="dd-guidance-card">
+                <span>03</span>
+                <h3>Resolve issue</h3>
+                <p>Mark the complaint as resolved after the necessary action is completed.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="dd-logout">
+        <a href="/department-logout">Logout from Department Portal</a>
     </div>
 
 </main>
 
-
-
-<footer>
-
-    <div class="footer-container">
-
-
-        <div>
-
-            <h3>
-                CivicConnect
-            </h3>
-
-            <p>
-                Anonymous Civic Complaint Portal
-            </p>
-
-        </div>
-
-
-        <div>
-
-            <p>
-                © 2026 CivicConnect.
-                All rights reserved.
-            </p>
-
-        </div>
-
-
-    </div>
-
+<footer class="dd-footer">
+    <strong>CivicConnect</strong>
+    <span>Anonymous Civic Complaint Portal</span>
+    <p>© 2026 CivicConnect. All rights reserved.</p>
 </footer>
 
-
 </body>
-
 </html>

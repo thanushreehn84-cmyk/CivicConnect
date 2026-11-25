@@ -1,502 +1,397 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Report an Issue | CivicConnect</title>
+    <meta name="theme-color" content="#102b46">
+    <title>Submit a Complaint | CivicConnect</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
-
 </head>
 
-<body>
+<body class="cc-report-body">
 
-    <!-- ==============================
-         NAVBAR
-    =============================== -->
+<header class="cc-header">
+    <div class="cc-nav">
+        <a href="/" class="cc-brand">
+            <span class="cc-logo">CC</span>
+            <span>
+                <strong>CivicConnect</strong>
+                <small>Citizen Complaint Portal</small>
+            </span>
+        </a>
 
-    <header class="navbar">
+        <nav class="cc-nav-links">
+            <a href="/">Home</a>
+            <a href="/track">Track complaint</a>
+        </nav>
 
-        <div class="nav-container">
+        <a href="/" class="cc-nav-cta">Back to home</a>
+    </div>
+</header>
 
-            <div class="brand">
+<main class="cc-report-main">
 
-                <div class="brand-icon">
-                    CC
-                </div>
-
-                <div>
-                    <h2>CivicConnect</h2>
-                    <span>Citizen Complaint Portal</span>
-                </div>
-
-            </div>
-
-            <nav>
-                <a href="/">Home</a>
-                <a href="/#how-it-works">How It Works</a>
-                <a href="/#about">About</a>
-            </nav>
-
+    <div class="cc-report-heading">
+        <div class="cc-report-breadcrumb">
+            <a href="/">Home</a>
+            <span>/</span>
+            <span>Submit complaint</span>
         </div>
 
-    </header>
+        <span class="cc-section-kicker">CITIZEN SERVICES / REPORTING</span>
 
+        <h1>Report a civic issue.</h1>
 
-    <!-- ==============================
-         REPORT PAGE
-    =============================== -->
+        <p>
+            Your report can help bring attention to problems
+            affecting your community. Share accurate details
+            so the concerned department can review the issue.
+        </p>
 
-    <main class="report-page">
+        <div class="cc-report-trust">
+            <span>✓</span>
+            Anonymous reporting
+            <span class="cc-trust-divider">|</span>
+            <span>✓</span>
+            Secure submission
+        </div>
+    </div>
 
-        <div class="report-container">
+    <div class="cc-report-layout">
 
-            <!-- PAGE HEADING -->
+        <section class="cc-form-panel">
 
-            <div class="report-heading">
-
-                <span>SUBMIT A COMPLAINT</span>
-
-                <h1>Report a Civic Issue</h1>
-
-                <p>
-                    Help improve your community by reporting a
-                    civic issue. Provide accurate details so that
-                    the concerned department can review the complaint.
-                </p>
-
+            <div class="cc-form-panel-heading">
+                <div>
+                    <span class="cc-section-kicker">COMPLAINT DETAILS</span>
+                    <h2>Tell us what happened</h2>
+                    <p>Fields marked with * are required.</p>
+                </div>
+                <span class="cc-form-step">01 / 01</span>
             </div>
-
-
-            <!-- ==============================
-                 PRIVACY NOTICE
-            =============================== -->
-
-            <div class="report-privacy">
-
-                <strong>
-                    🔒 Privacy Notice
-                </strong>
-
-                <p>
-                    This form does not ask for your name, phone number,
-                    or email address. Please do not include personally
-                    identifying information in your complaint description
-                    or uploaded evidence.
-                </p>
-
-            </div>
-
-
-            <!-- ==============================
-                 ERROR MESSAGE
-            =============================== -->
 
             {% if error %}
-
-            <div class="track-error">
-
-                {{ error }}
-
+            <div class="cc-form-error" role="alert">
+                <strong>Submission needs attention</strong>
+                <p>{{ error }}</p>
             </div>
-
             {% endif %}
 
-
-            <!-- ==============================
-                 COMPLAINT FORM
-            =============================== -->
-
-            <form class="complaint-form"
+            <form class="cc-complaint-form"
                   method="POST"
+                  action="{{ url_for('report') }}"
                   enctype="multipart/form-data">
 
+                <div class="cc-form-section-title">
+                    <span>01</span>
+                    <div>
+                        <h3>Issue information</h3>
+                        <p>Identify the type and location of the problem.</p>
+                    </div>
+                </div>
 
-                <!-- ==============================
-                     CATEGORY
-                =============================== -->
-
-                <div class="form-group">
-
+                <div class="cc-field">
                     <label for="category">
-
-                        Complaint Category
-
-                        <span>*</span>
-
+                        Complaint category <span>*</span>
                     </label>
 
-                    <select id="category"
-                            name="category"
-                            required>
+                    <select id="category" name="category" required>
+                        <option value="">Choose a category</option>
 
-                        <option value="">
-                            Select a category
-                        </option>
-
-                        <option value="Illegal Construction">
+                        <option value="Illegal Construction"
+                            {% if category == "Illegal Construction" %}selected{% endif %}>
                             Illegal Construction
                         </option>
 
-                        <option value="Environmental Issue">
+                        <option value="Environmental Issue"
+                            {% if category == "Environmental Issue" %}selected{% endif %}>
                             Environmental Issue
                         </option>
 
-                        <option value="Traffic Issue">
+                        <option value="Traffic Issue"
+                            {% if category == "Traffic Issue" %}selected{% endif %}>
                             Traffic Issue
                         </option>
 
-                        <option value="Public Safety">
+                        <option value="Public Safety"
+                            {% if category == "Public Safety" %}selected{% endif %}>
                             Public Safety
                         </option>
 
-                        <option value="Other Civic Issue">
+                        <option value="Other Civic Issue"
+                            {% if category == "Other Civic Issue" %}selected{% endif %}>
                             Other Civic Issue
                         </option>
-
                     </select>
 
-                    <small>
-                        Select the category that best describes the issue.
-                    </small>
-
+                    <small>Select the category that best describes your concern.</small>
                 </div>
 
-
-                <!-- ==============================
-                     LOCATION
-                =============================== -->
-
-                <div class="form-group">
-
+                <div class="cc-field">
                     <label for="location">
-
-                        Location
-
-                        <span>*</span>
-
+                        Incident location <span>*</span>
                     </label>
 
                     <input type="text"
                            id="location"
                            name="location"
-                           placeholder="Example: Near Main Road, Bengaluru"
+                           value="{{ location or '' }}"
+                           placeholder="e.g. Near Main Road, Bengaluru"
                            required>
 
-                    <small>
-                        Enter the location where the issue occurred.
-                    </small>
-
+                    <small>Provide a clear location where the issue occurred.</small>
                 </div>
 
-
-                <!-- ==============================
-                     DATE
-                =============================== -->
-
-                <div class="form-group">
-
+                <div class="cc-field">
                     <label for="date">
-
-                        Date of Incident
-
-                        <span>*</span>
-
+                        Date of incident <span>*</span>
                     </label>
 
                     <input type="date"
                            id="date"
                            name="date"
+                           value="{{ date or '' }}"
                            required>
 
-                    <small>
-                        Select the date when the issue was observed.
-                    </small>
-
+                    <small>Choose the date when you observed the issue.</small>
                 </div>
 
+                <div class="cc-form-section-title cc-form-section-spaced">
+                    <span>02</span>
+                    <div>
+                        <h3>Describe the issue</h3>
+                        <p>Give enough information to understand the concern.</p>
+                    </div>
+                </div>
 
-                <!-- ==============================
-                     DESCRIPTION
-                =============================== -->
-
-                <div class="form-group">
-
+                <div class="cc-field">
                     <label for="description">
-
-                        Complaint Description
-
-                        <span>*</span>
-
+                        Complaint description <span>*</span>
                     </label>
 
                     <textarea id="description"
                               name="description"
                               rows="7"
-                              placeholder="Describe the issue clearly. Include relevant details such as what happened, where it happened, and how it affects the public."
-                              required></textarea>
+                              maxlength="3000"
+                              placeholder="Describe what happened, where it happened, and how it affects the public..."
+                              required>{{ description or '' }}</textarea>
 
-                    <small>
-                        Provide clear and factual information about the complaint.
-                    </small>
-
+                    <div class="cc-field-bottom">
+                        <small>Be factual and avoid including personal information.</small>
+                        <small id="cc-char-count">0 / 3000</small>
+                    </div>
                 </div>
 
+                <div class="cc-form-section-title cc-form-section-spaced">
+                    <span>03</span>
+                    <div>
+                        <h3>Supporting evidence</h3>
+                        <p>Attach relevant media if it helps explain the issue.</p>
+                    </div>
+                </div>
 
-                <!-- ==============================
-                     IMAGE UPLOAD
-                =============================== -->
+                <div class="cc-upload-grid">
 
-                <div class="form-group">
+                    <div class="cc-upload-card">
+                        <div class="cc-upload-icon">▧</div>
+                        <label for="image">Image evidence</label>
+                        <p>Upload a photograph of the issue.</p>
 
-                    <label for="image">
+                        <input type="file"
+                               id="image"
+                               name="image"
+                               accept="image/*">
 
-                        Image Evidence
+                        <label class="cc-file-button" for="image">
+                            Choose image
+                        </label>
 
-                        <span class="optional">
-                            Optional
+                        <span class="cc-file-name" id="cc-image-name">
+                            No image selected
                         </span>
-
-                    </label>
-
-                    <input type="file"
-                           id="image"
-                           name="image"
-                           accept="image/*">
-
-                    <small>
-                        Upload an image that helps explain or verify the complaint.
-                    </small>
-
-                </div>
-
-
-                <!-- ==============================
-                     VIDEO UPLOAD
-                =============================== -->
-
-                <div class="form-group">
-
-                    <label for="video">
-
-                        Video Evidence
-
-                        <span class="optional">
-                            Optional
-                        </span>
-
-                    </label>
-
-                    <input type="file"
-                           id="video"
-                           name="video"
-                           accept="video/*">
-
-                    <small>
-                        Upload a video if it provides additional evidence.
-                    </small>
-
-                </div>
-
-
-                <!-- ==============================
-                     SECURITY CHECK
-                =============================== -->
-
-                <div class="form-group">
-
-                    <label for="captcha">
-
-                        Security Check
-
-                        <span>*</span>
-
-                    </label>
-
-                    <div class="captcha-box">
-
-                        <p>
-                            Please solve:
-                            <strong>
-                                {{ captcha_question }}
-                            </strong>
-                        </p>
-
                     </div>
 
-                    <input
-                        type="number"
-                        id="captcha"
-                        name="captcha"
-                        placeholder="Enter your answer"
-                        required>
+                    <div class="cc-upload-card">
+                        <div class="cc-upload-icon">▷</div>
+                        <label for="video">Video evidence</label>
+                        <p>Upload a video if additional context is needed.</p>
 
-                    <small>
-                        This security check helps prevent automated spam submissions.
-                    </small>
+                        <input type="file"
+                               id="video"
+                               name="video"
+                               accept="video/*">
+
+                        <label class="cc-file-button" for="video">
+                            Choose video
+                        </label>
+
+                        <span class="cc-file-name" id="cc-video-name">
+                            No video selected
+                        </span>
+                    </div>
 
                 </div>
 
+                <p class="cc-upload-note">
+                    Only upload evidence relevant to your complaint.
+                    Avoid including faces, identity documents or private information.
+                </p>
 
-                <!-- ==============================
-                     SUBMIT SECTION
-                =============================== -->
+                <div class="cc-form-section-title cc-form-section-spaced">
+                    <span>04</span>
+                    <div>
+                        <h3>Security verification</h3>
+                        <p>Complete the check before submitting your report.</p>
+                    </div>
+                </div>
 
-                <div class="form-submit">
+                <div class="cc-captcha-panel">
+                    <div>
+                        <span class="cc-captcha-label">SECURITY CHECK</span>
+                        <p>Solve this simple question:</p>
+                        <strong>{{ captcha_question }}</strong>
+                    </div>
 
-                    <button type="submit"
-                            class="btn primary-btn">
+                    <div class="cc-field cc-captcha-input">
+                        <label for="captcha">Your answer <span>*</span></label>
+                        <input type="number"
+                               id="captcha"
+                               name="captcha"
+                               placeholder="Enter answer"
+                               required>
+                    </div>
+                </div>
 
-                        Submit Complaint
+                <div class="cc-privacy-panel">
+                    <span class="cc-privacy-icon">🔒</span>
+                    <div>
+                        <strong>Your privacy matters</strong>
+                        <p>
+                            This form does not request your name, phone number
+                            or email address. Do not include identifying details
+                            in your description or evidence.
+                        </p>
+                    </div>
+                </div>
 
+                <div class="cc-form-actions">
+                    <a href="/" class="cc-form-cancel">Cancel</a>
+
+                    <button type="submit" class="cc-submit-button">
+                        Submit complaint <span>→</span>
                     </button>
-
-                    <a href="/"
-                       class="cancel-btn">
-
-                        Cancel
-
-                    </a>
-
                 </div>
 
+                <p class="cc-submit-note">
+                    Please review your information before submitting.
+                </p>
 
             </form>
+        </section>
 
+        <aside class="cc-report-sidebar">
 
-            <!-- ==============================
-                 INFORMATION BOX
-            =============================== -->
+            <div class="cc-sidebar-card">
+                <span class="cc-section-kicker">WHAT HAPPENS NEXT?</span>
+                <h3>Your complaint journey</h3>
+                <p class="cc-sidebar-intro">
+                    After submission, your complaint enters the
+                    platform's review and processing workflow.
+                </p>
 
-            <div class="report-info">
+                <div class="cc-sidebar-timeline">
 
-                <h3>What happens after submission?</h3>
-
-                <div class="report-steps">
-
-                    <div class="report-step">
-
-                        <div class="step-number">
-                            1
-                        </div>
-
+                    <div class="cc-sidebar-step">
+                        <span>01</span>
                         <div>
-
-                            <strong>Complaint Received</strong>
-
-                            <p>
-                                Your complaint is recorded and given
-                                a unique complaint ID.
-                            </p>
-
+                            <strong>Complaint received</strong>
+                            <p>Your report is recorded and assigned a unique ID.</p>
                         </div>
-
                     </div>
 
-
-                    <div class="report-step">
-
-                        <div class="step-number">
-                            2
-                        </div>
-
+                    <div class="cc-sidebar-step">
+                        <span>02</span>
                         <div>
-
-                            <strong>Automatic Validation</strong>
-
-                            <p>
-                                The system checks the complaint for
-                                suspicious or duplicate submissions.
-                            </p>
-
+                            <strong>Validation and review</strong>
+                            <p>The system checks the complaint for suspicious or duplicate submissions.</p>
                         </div>
-
                     </div>
 
-
-                    <div class="report-step">
-
-                        <div class="step-number">
-                            3
-                        </div>
-
+                    <div class="cc-sidebar-step">
+                        <span>03</span>
                         <div>
-
-                            <strong>Department Assignment</strong>
-
-                            <p>
-                                Valid complaints are routed to the
-                                appropriate civic department.
-                            </p>
-
+                            <strong>Department assignment</strong>
+                            <p>Valid complaints are routed to the relevant department.</p>
                         </div>
-
                     </div>
 
-
-                    <div class="report-step">
-
-                        <div class="step-number">
-                            4
-                        </div>
-
+                    <div class="cc-sidebar-step">
+                        <span>04</span>
                         <div>
-
-                            <strong>Complaint Tracking</strong>
-
-                            <p>
-                                Use your complaint ID to check the
-                                current status of your complaint.
-                            </p>
-
+                            <strong>Track progress</strong>
+                            <p>Use your complaint ID to check its current status.</p>
                         </div>
-
                     </div>
 
                 </div>
-
             </div>
 
-        </div>
-
-    </main>
-
-
-    <!-- ==============================
-         FOOTER
-    =============================== -->
-
-    <footer>
-
-        <div class="footer-container">
-
-            <div>
-
-                <h3>CivicConnect</h3>
-
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
-
+            <div class="cc-sidebar-help">
+                <span>NEED TO CHECK A REPORT?</span>
+                <h3>Already submitted a complaint?</h3>
+                <p>Use your complaint reference ID to check its progress.</p>
+                <a href="/track">Track your complaint →</a>
             </div>
 
-            <div>
+        </aside>
 
-                <p>
-                    © 2026 CivicConnect. All rights reserved.
-                </p>
+    </div>
+</main>
 
-            </div>
+<footer class="cc-footer">
+    <div class="cc-footer-inner">
+        <a href="/" class="cc-brand cc-footer-brand">
+            <span class="cc-logo">CC</span>
+            <span>
+                <strong>CivicConnect</strong>
+                <small>Anonymous Civic Complaint Portal</small>
+            </span>
+        </a>
 
-        </div>
+        <p>Building a more responsive civic system.</p>
+        <span>© 2026 CivicConnect. All rights reserved.</span>
+    </div>
+</footer>
 
-    </footer>
+<script>
+    const descriptionField = document.getElementById("description");
+    const charCount = document.getElementById("cc-char-count");
+
+    function updateCharacterCount() {
+        charCount.textContent =
+            `${descriptionField.value.length} / 3000`;
+    }
+
+    descriptionField.addEventListener("input", updateCharacterCount);
+    updateCharacterCount();
+
+    function showFileName(inputId, outputId) {
+        const input = document.getElementById(inputId);
+        const output = document.getElementById(outputId);
+
+        input.addEventListener("change", function () {
+            output.textContent = this.files.length
+                ? this.files[0].name
+                : "No file selected";
+        });
+    }
+
+    showFileName("image", "cc-image-name");
+    showFileName("video", "cc-video-name");
+</script>
 
 </body>
-
 </html>

@@ -1,268 +1,163 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complaint Submitted | CivicConnect</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<body class="cc-success-page">
 
-<body>
+<header class="cc-success-nav">
+    <a href="/" class="cc-success-brand">
+        <span class="cc-success-logo">CC</span>
+        <span>
+            <strong>CivicConnect</strong>
+            <small>Anonymous Civic Complaint Portal</small>
+        </span>
+    </a>
+    <a href="/" class="cc-success-home">Back to Home <span>↗</span></a>
+</header>
 
-    <!-- ==============================
-         NAVBAR
-    =============================== -->
+<main class="cc-success-main">
 
-    <header class="navbar">
+    <section class="cc-success-card">
 
-        <div class="nav-container">
+        <div class="cc-success-top">
+            <div class="cc-success-check">
+                <svg viewBox="0 0 52 52" aria-hidden="true">
+                    <circle cx="26" cy="26" r="23" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <path d="M15 26.5L22.5 34L38 18" fill="none"
+                          stroke="currentColor" stroke-width="3"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
 
-            <div class="brand">
+            <span class="cc-success-eyebrow">SUBMISSION CONFIRMED</span>
+            <h1>Your voice has been heard.</h1>
+            <p>
+                Your civic complaint has been successfully submitted.
+                Thank you for taking the initiative to improve your community.
+            </p>
+        </div>
 
-                <div class="brand-icon">
-                    CC
-                </div>
-
+        <div class="cc-success-id">
+            <div class="cc-success-id-heading">
                 <div>
-                    <h2>CivicConnect</h2>
-                    <span>Citizen Complaint Portal</span>
+                    <span>YOUR REFERENCE NUMBER</span>
+                    <h2>Complaint ID</h2>
                 </div>
-
+                <span class="cc-success-id-icon">#</span>
             </div>
 
-            <nav>
-                <a href="/">Home</a>
-                <a href="/#how-it-works">How It Works</a>
-                <a href="/#about">About</a>
-            </nav>
+            <div class="cc-success-id-value">
+                <strong id="complaintReference">{{ complaint_id }}</strong>
+                <button type="button" id="copyComplaintId" class="cc-copy-button"
+                        aria-label="Copy complaint ID">
+                    <span id="copyIcon">▢</span>
+                    <span id="copyText">Copy ID</span>
+                </button>
+            </div>
 
+            <p>Keep this reference ID safe. You will need it to track your complaint.</p>
         </div>
 
-    </header>
-
-
-    <!-- ==============================
-         SUCCESS PAGE
-    =============================== -->
-
-    <main class="success-page">
-
-        <div class="success-container">
-
-            <!-- SUCCESS ICON -->
-
-            <div class="success-icon">
-                ✓
-            </div>
-
-
-            <!-- HEADING -->
-
-            <div class="success-heading">
-
-                <span>COMPLAINT SUBMITTED</span>
-
-                <h1>
-                    Your Complaint Has Been Received
-                </h1>
-
-                <p>
-                    Thank you for helping improve your community.
-                    Your complaint has been successfully recorded
-                    in the CivicConnect system.
-                </p>
-
-            </div>
-
-
-            <!-- COMPLAINT ID -->
-
-            <div class="complaint-id-box">
-
-                <p>
-                    Your Complaint ID
-                </p>
-
-                <h2>
-                    {{ complaint_id }}
-                </h2>
-
-                <small>
-                    Please save this ID. You will need it to track
-                    the status of your complaint.
-                </small>
-
-            </div>
-
-
-            <!-- STATUS -->
-
-            <div class="success-status">
-
-                <div class="status-label">
-                    Current Status
-                </div>
-
-                <div class="status-value">
-                    {{ status }}
-                </div>
-
-            </div>
-
-
-            <!-- AUTOMATIC VALIDATION -->
-
-            <div class="validation-box">
-
-                <strong>
-                    Automatic Validation
-                </strong>
-
-                <p>
-                    {{ validation_message }}
-                </p>
-
-            </div>
-
-
-            <!-- NEXT STEPS -->
-
-            <div class="success-next">
-
-                <h3>
-                    What happens next?
-                </h3>
-
-                <div class="success-steps">
-
-                    <div class="success-step">
-
-                        <div class="success-step-number">
-                            1
-                        </div>
-
-                        <div>
-                            <strong>Validation</strong>
-
-                            <p>
-                                The system checks the complaint
-                                for suspicious or duplicate content.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="success-step">
-
-                        <div class="success-step-number">
-                            2
-                        </div>
-
-                        <div>
-                            <strong>Department Assignment</strong>
-
-                            <p>
-                                Valid complaints are routed to the
-                                appropriate department.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="success-step">
-
-                        <div class="success-step-number">
-                            3
-                        </div>
-
-                        <div>
-                            <strong>Review and Resolution</strong>
-
-                            <p>
-                                The concerned department reviews
-                                and processes the complaint.
-                            </p>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- ACTION BUTTONS -->
-
-            <div class="success-actions">
-
-                <a href="/track"
-                   class="btn primary-btn">
-
-                    Track Complaint
-
-                </a>
-
-                <a href="/report"
-                   class="btn secondary-btn">
-
-                    Report Another Issue
-
-                </a>
-
-                <a href="/"
-                   class="cancel-btn">
-
-                    Back to Home
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <!-- ==============================
-         FOOTER
-    =============================== -->
-
-    <footer>
-
-        <div class="footer-container">
-
+        <div class="cc-success-status-row">
             <div>
-
-                <h3>CivicConnect</h3>
-
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
-
+                <span class="cc-success-small-label">CURRENT STATUS</span>
+                <strong class="cc-success-status">{{ status }}</strong>
             </div>
-
-            <div>
-
-                <p>
-                    © 2026 CivicConnect. All rights reserved.
-                </p>
-
-            </div>
-
+            <div class="cc-success-status-mark">●</div>
         </div>
 
-    </footer>
+        <div class="cc-success-validation">
+            <div class="cc-validation-icon">✓</div>
+            <div>
+                <strong>Automatic validation result</strong>
+                <p>{{ validation_message }}</p>
+            </div>
+        </div>
+
+        <section class="cc-success-next">
+            <div class="cc-success-section-heading">
+                <span>WHAT HAPPENS NEXT</span>
+                <h2>Your complaint journey</h2>
+            </div>
+
+            <div class="cc-success-timeline">
+                <div class="cc-success-timeline-item">
+                    <div class="cc-success-timeline-marker">1</div>
+                    <div>
+                        <strong>Complaint validation</strong>
+                        <p>Your submission is checked for suspicious or duplicate content.</p>
+                    </div>
+                </div>
+
+                <div class="cc-success-timeline-item">
+                    <div class="cc-success-timeline-marker">2</div>
+                    <div>
+                        <strong>Department assignment</strong>
+                        <p>Eligible complaints are directed to the appropriate department.</p>
+                    </div>
+                </div>
+
+                <div class="cc-success-timeline-item">
+                    <div class="cc-success-timeline-marker">3</div>
+                    <div>
+                        <strong>Review and resolution</strong>
+                        <p>The responsible department reviews the issue and updates its progress.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="cc-success-actions">
+            <a href="/track" class="cc-success-primary">
+                Track My Complaint <span>→</span>
+            </a>
+            <a href="/report" class="cc-success-secondary">
+                Submit Another Complaint
+            </a>
+        </div>
+
+        <p class="cc-success-reminder">
+            <span>ⓘ</span> Your complaint is recorded. Save your Complaint ID for future reference.
+        </p>
+
+    </section>
+
+</main>
+
+<footer class="cc-success-footer">
+    <strong>CivicConnect</strong>
+    <span>Anonymous Civic Complaint Portal · © 2026</span>
+</footer>
+
+<script>
+    const copyButton = document.getElementById("copyComplaintId");
+
+    copyButton.addEventListener("click", async function () {
+        const complaintId = document.getElementById("complaintReference").textContent.trim();
+        const copyText = document.getElementById("copyText");
+        const copyIcon = document.getElementById("copyIcon");
+
+        try {
+            await navigator.clipboard.writeText(complaintId);
+            copyText.textContent = "Copied!";
+            copyIcon.textContent = "✓";
+            copyButton.classList.add("copied");
+
+            setTimeout(() => {
+                copyText.textContent = "Copy ID";
+                copyIcon.textContent = "▢";
+                copyButton.classList.remove("copied");
+            }, 2000);
+        } catch (error) {
+            copyText.textContent = "Copy unavailable";
+        }
+    });
+</script>
 
 </body>
-
 </html>

@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#102b46">
 
     <title>CivicConnect | Anonymous Civic Complaint Portal</title>
 
@@ -13,666 +14,339 @@
 
 <body>
 
-    <!-- ================= NAVBAR ================= -->
+<header class="cc-header">
+    <div class="cc-nav">
+        <a href="#home" class="cc-brand">
+            <span class="cc-logo">CC</span>
+            <span>
+                <strong>CivicConnect</strong>
+                <small>Citizen Complaint Portal</small>
+            </span>
+        </a>
 
-    <header class="navbar">
+        <nav class="cc-nav-links">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#process">How it works</a>
+            <a href="#about">About</a>
+        </nav>
 
-        <div class="nav-container">
+        <a href="/report" class="cc-nav-cta">Report an issue <span>↗</span></a>
+    </div>
+</header>
 
-            <div class="brand">
+<main>
 
-                <div class="brand-icon">
-                    CC
+    <!-- HERO -->
+    <section class="cc-hero" id="home">
+        <div class="cc-hero-grid">
+
+            <div class="cc-hero-copy">
+                <div class="cc-eyebrow">
+                    <span class="cc-live-dot"></span>
+                    DIGITAL CIVIC SERVICE PLATFORM
                 </div>
-
-                <div>
-                    <h2>CivicConnect</h2>
-                    <span>Citizen Complaint Portal</span>
-                </div>
-
-            </div>
-
-            <nav>
-
-                <a href="#home">
-                    Home
-                </a>
-
-                <a href="#how-it-works">
-                    How It Works
-                </a>
-
-                <a href="#about">
-                    About
-                </a>
-
-                <a href="#admin">
-                    Admin Portal
-                </a>
-
-            </nav>
-
-        </div>
-
-    </header>
-
-
-    <!-- ================= HERO SECTION ================= -->
-
-    <section class="hero" id="home">
-
-        <div class="hero-container">
-
-
-            <!-- ================= HERO CONTENT ================= -->
-
-            <div class="hero-content">
-
-                <div class="badge">
-                    CIVIC SERVICE PLATFORM
-                </div>
-
 
                 <h1>
-
-                    Report Civic Issues.<br>
-
-                    <span>
-                        Make Your Voice Heard.
-                    </span>
-
+                    Better communities<br>
+                    begin with <span>your voice.</span>
                 </h1>
 
-
-                <p class="hero-text">
-
-                    A secure platform for citizens to report civic
-                    issues anonymously and help authorities take
-                    appropriate action.
-
+                <p class="cc-hero-description">
+                    Report civic concerns securely and anonymously.
+                    Help bring local issues to the attention of the
+                    authorities responsible for taking action.
                 </p>
 
-
-                <!-- ================= CITIZEN BUTTONS ================= -->
-
-                <div class="hero-buttons">
-
-                    <a href="/report"
-                       class="btn primary-btn">
-
-                        Report an Issue
-
+                <div class="cc-hero-actions">
+                    <a href="/report" class="cc-button cc-button-primary">
+                        Report a civic issue <span>→</span>
                     </a>
 
-
-                    <a href="/track"
-                       class="btn secondary-btn">
-
-                        Track Complaint
-
+                    <a href="/track" class="cc-button cc-button-outline">
+                        Track a complaint
                     </a>
-
                 </div>
 
-
-                <!-- ================= LOGIN BUTTONS ================= -->
-
-                <div class="login-buttons">
-
-
-                    <a href="/validator-login"
-                       class="btn secondary-btn">
-
-                        Validator Login
-
-                    </a>
-
-
-                    <a href="/department-login"
-                       class="btn secondary-btn">
-
-                        Department Login
-
-                    </a>
-
-
-                    <a href="/admin-login"
-                       class="btn secondary-btn">
-
-                        Admin Login
-
-                    </a>
-
-
+                <div class="cc-trust-line">
+                    <span>✓</span>
+                    No name, phone number or email required
                 </div>
-
-
-                <!-- ================= PRIVACY NOTICE ================= -->
-
-                <div class="privacy-note">
-
-                    <strong>
-                        🔒 Privacy Notice
-                    </strong>
-
-                    <p>
-
-                        No name, phone number, or email address is
-                        required to submit a complaint.
-
-                    </p>
-
-                </div>
-
             </div>
 
+            <!-- WORKFLOW PREVIEW -->
+            <div class="cc-preview">
+                <div class="cc-preview-top">
+                    <div>
+                        <span class="cc-preview-label">HOW CIVICCONNECT WORKS</span>
+                        <h3>From report to resolution</h3>
+                    </div>
+                    <span class="cc-preview-icon">✦</span>
+                </div>
 
-            <!-- ================= COMPLAINT PREVIEW CARD ================= -->
+                <div class="cc-preview-flow">
 
-            <div class="hero-card">
+                    <div class="cc-flow-item">
+                        <div class="cc-flow-icon">01</div>
+                        <div class="cc-flow-text">
+                            <strong>Citizen submits a report</strong>
+                            <span>Issue details and supporting evidence</span>
+                        </div>
+                        <span class="cc-flow-check">✓</span>
+                    </div>
 
+                    <div class="cc-flow-connector"></div>
 
-                <div class="card-header">
+                    <div class="cc-flow-item">
+                        <div class="cc-flow-icon">02</div>
+                        <div class="cc-flow-text">
+                            <strong>Validation and review</strong>
+                            <span>Complaint is checked for review</span>
+                        </div>
+                        <span class="cc-flow-check">✓</span>
+                    </div>
 
-                    <span>
-                        Complaint Status
-                    </span>
+                    <div class="cc-flow-connector"></div>
 
-                    <span class="status">
-                        Under Review
-                    </span>
+                    <div class="cc-flow-item">
+                        <div class="cc-flow-icon">03</div>
+                        <div class="cc-flow-text">
+                            <strong>Department assignment</strong>
+                            <span>Forwarded to the relevant department</span>
+                        </div>
+                        <span class="cc-flow-pending">→</span>
+                    </div>
+
+                    <div class="cc-flow-connector"></div>
+
+                    <div class="cc-flow-item">
+                        <div class="cc-flow-icon">04</div>
+                        <div class="cc-flow-text">
+                            <strong>Resolution and tracking</strong>
+                            <span>Progress can be checked using the ID</span>
+                        </div>
+                        <span class="cc-flow-pending">○</span>
+                    </div>
 
                 </div>
 
-
-                <div class="complaint-details">
-
-
-                    <div class="detail">
-
-                        <span>
-                            Complaint ID
-                        </span>
-
-                        <strong>
-                            CMP10245
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail">
-
-                        <span>
-                            Category
-                        </span>
-
-                        <strong>
-                            Environmental Issue
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail">
-
-                        <span>
-                            Location
-                        </span>
-
-                        <strong>
-                            Bengaluru
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail">
-
-                        <span>
-                            Submitted
-                        </span>
-
-                        <strong>
-                            26 September 2026
-                        </strong>
-
-                    </div>
-
-
+                <div class="cc-preview-footer">
+                    <span>●</span>
+                    A transparent complaint management process
                 </div>
-
-
-                <!-- ================= PROGRESS ================= -->
-
-                <div class="progress">
-
-
-                    <div class="progress-step completed">
-
-                        <span>
-                            1
-                        </span>
-
-                        Submitted
-
-                    </div>
-
-
-                    <div class="progress-line"></div>
-
-
-                    <div class="progress-step active">
-
-                        <span>
-                            2
-                        </span>
-
-                        Under Review
-
-                    </div>
-
-
-                    <div class="progress-line"></div>
-
-
-                    <div class="progress-step">
-
-                        <span>
-                            3
-                        </span>
-
-                        Resolved
-
-                    </div>
-
-
-                </div>
-
             </div>
 
         </div>
 
+        <div class="cc-hero-bottom">
+            <span>BUILT FOR CITIZENS</span>
+            <span>SECURE REPORTING</span>
+            <span>ACCOUNTABLE FOLLOW-UP</span>
+        </div>
     </section>
 
-
-    <!-- ================= FEATURES ================= -->
-
-    <section class="features">
-
-
-        <div class="section-heading">
-
-            <span>
-                KEY FEATURES
-            </span>
-
-            <h2>
-                A Simple Way to Report Civic Problems
-            </h2>
-
+    <!-- SERVICES -->
+    <section class="cc-section" id="services">
+        <div class="cc-section-heading">
+            <span class="cc-section-kicker">OUR SERVICES</span>
+            <h2>One platform. A better way to be heard.</h2>
             <p>
-
-                CivicConnect provides citizens with a simple
-                platform to report issues and monitor their status.
-
+                CivicConnect makes it easier to report civic problems
+                and follow their progress through a structured process.
             </p>
-
         </div>
 
+        <div class="cc-service-grid">
 
-        <div class="feature-container">
-
-
-            <!-- ================= FEATURE 1 ================= -->
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    🔒
-                </div>
-
-                <h3>
-                    Anonymous Reporting
-                </h3>
-
+            <article class="cc-service-card">
+                <div class="cc-service-icon">↗</div>
+                <span class="cc-card-number">01 / REPORT</span>
+                <h3>Anonymous Reporting</h3>
                 <p>
-
-                    Submit civic complaints without providing
-                    personal information such as your name,
-                    phone number, or email.
-
+                    Submit civic concerns without sharing personal
+                    contact details. Describe the issue and provide
+                    supporting evidence.
                 </p>
+                <a href="/report">Submit a report <span>→</span></a>
+            </article>
 
-            </div>
-
-
-            <!-- ================= FEATURE 2 ================= -->
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    📋
-                </div>
-
-                <h3>
-                    Complaint Tracking
-                </h3>
-
+            <article class="cc-service-card">
+                <div class="cc-service-icon">⌕</div>
+                <span class="cc-card-number">02 / TRACK</span>
+                <h3>Complaint Tracking</h3>
                 <p>
-
-                    Every complaint receives a unique complaint
-                    ID that can be used to check its current status.
-
+                    Use your unique complaint ID to check the
+                    progress and current status of your submission.
                 </p>
+                <a href="/track">Track a complaint <span>→</span></a>
+            </article>
 
-            </div>
-
-
-            <!-- ================= FEATURE 3 ================= -->
-
-            <div class="feature-card">
-
-                <div class="feature-icon">
-                    🏛️
-                </div>
-
-                <h3>
-                    Department Routing
-                </h3>
-
+            <article class="cc-service-card">
+                <div class="cc-service-icon">▦</div>
+                <span class="cc-card-number">03 / ROUTING</span>
+                <h3>Department Coordination</h3>
                 <p>
-
-                    Complaints can be forwarded to the appropriate
-                    department based on the selected complaint category.
-
+                    Complaints are directed towards the relevant
+                    civic department for review and further action.
                 </p>
-
-            </div>
-
+                <a href="#process">Explore the process <span>→</span></a>
+            </article>
 
         </div>
-
     </section>
 
+    <!-- PROCESS -->
+    <section class="cc-process-section" id="process">
+        <div class="cc-process-inner">
 
-    <!-- ================= HOW IT WORKS ================= -->
+            <div class="cc-section-heading cc-process-heading">
+                <span class="cc-section-kicker">THE PROCESS</span>
+                <h2>Every report has a path forward.</h2>
+                <p>
+                    A structured workflow helps move a civic concern
+                    from submission towards departmental action.
+                </p>
+            </div>
 
-    <section class="how-it-works" id="how-it-works">
+            <div class="cc-process-grid">
+                <article class="cc-process-step">
+                    <span class="cc-step-index">01</span>
+                    <div class="cc-step-line"></div>
+                    <h3>Report</h3>
+                    <p>Submit the issue, location, description and available evidence.</p>
+                </article>
 
+                <article class="cc-process-step">
+                    <span class="cc-step-index">02</span>
+                    <div class="cc-step-line"></div>
+                    <h3>Validate</h3>
+                    <p>The complaint goes through the platform's validation and review process.</p>
+                </article>
 
-        <div class="section-heading">
+                <article class="cc-process-step">
+                    <span class="cc-step-index">03</span>
+                    <div class="cc-step-line"></div>
+                    <h3>Assign</h3>
+                    <p>The complaint is routed to the relevant department for action.</p>
+                </article>
 
-            <span>
-                HOW IT WORKS
-            </span>
-
-            <h2>
-                From Complaint to Resolution
-            </h2>
-
-            <p>
-
-                The process is designed to be simple and transparent.
-
-            </p>
-
+                <article class="cc-process-step">
+                    <span class="cc-step-index">04</span>
+                    <div class="cc-step-line"></div>
+                    <h3>Track</h3>
+                    <p>Check complaint progress using the unique complaint reference ID.</p>
+                </article>
+            </div>
         </div>
-
-
-        <div class="steps-container">
-
-
-            <!-- ================= STEP 1 ================= -->
-
-            <div class="step">
-
-                <div class="step-number">
-                    01
-                </div>
-
-                <h3>
-                    Submit Complaint
-                </h3>
-
-                <p>
-
-                    Describe the civic issue and provide its
-                    location and relevant evidence.
-
-                </p>
-
-            </div>
-
-
-            <!-- ================= STEP 2 ================= -->
-
-            <div class="step">
-
-                <div class="step-number">
-                    02
-                </div>
-
-                <h3>
-                    Receive Complaint ID
-                </h3>
-
-                <p>
-
-                    A unique complaint ID is generated after
-                    successful submission.
-
-                </p>
-
-            </div>
-
-
-            <!-- ================= STEP 3 ================= -->
-
-            <div class="step">
-
-                <div class="step-number">
-                    03
-                </div>
-
-                <h3>
-                    Department Review
-                </h3>
-
-                <p>
-
-                    An administrator reviews the complaint and
-                    forwards it to the relevant department.
-
-                </p>
-
-            </div>
-
-
-            <!-- ================= STEP 4 ================= -->
-
-            <div class="step">
-
-                <div class="step-number">
-                    04
-                </div>
-
-                <h3>
-                    Track Status
-                </h3>
-
-                <p>
-
-                    Citizens can use their complaint ID to
-                    monitor the progress of their complaint.
-
-                </p>
-
-            </div>
-
-
-        </div>
-
     </section>
 
+    <!-- ABOUT -->
+    <section class="cc-section cc-about-section" id="about">
+        <div class="cc-about-grid">
 
-    <!-- ================= ABOUT ================= -->
-
-    <section class="about" id="about">
-
-
-        <div class="about-container">
-
-
-            <div class="about-content">
-
-                <span>
-                    ABOUT CIVICCONNECT
-                </span>
-
-                <h2>
-                    Building a More Responsive Civic System
-                </h2>
+            <div class="cc-about-copy">
+                <span class="cc-section-kicker">ABOUT CIVICCONNECT</span>
+                <h2>Technology that connects civic concerns with action.</h2>
 
                 <p>
-
-                    CivicConnect is a digital platform designed
-                    to make civic issue reporting easier and more
-                    accessible.
-
+                    CivicConnect is an anonymous civic complaint
+                    platform designed to help citizens report local
+                    issues through a structured digital process.
                 </p>
 
                 <p>
-
-                    Citizens can report problems such as illegal
-                    construction, environmental issues, traffic
-                    problems, and public safety concerns.
-
+                    The platform supports complaint submission,
+                    validation, department coordination and status
+                    tracking in one place.
                 </p>
 
-                <p>
-
-                    Administrators can review submitted complaints,
-                    assign them to the appropriate department, and
-                    update their status.
-
-                </p>
-
+                <a href="/report" class="cc-button cc-button-primary">
+                    Get started <span>→</span>
+                </a>
             </div>
 
+            <div class="cc-category-panel">
+                <span class="cc-section-kicker">SUPPORTED CATEGORIES</span>
+                <h3>What can you report?</h3>
 
-            <!-- ================= CATEGORIES ================= -->
-
-            <div class="about-box">
-
-                <h3>
-                    Supported Complaint Categories
-                </h3>
-
-                <ul>
-
-                    <li>
-                        Illegal Construction
-                    </li>
-
-                    <li>
-                        Environmental Issues
-                    </li>
-
-                    <li>
-                        Traffic Issues
-                    </li>
-
-                    <li>
-                        Public Safety
-                    </li>
-
-                    <li>
-                        Other Civic Issues
-                    </li>
-
-                </ul>
-
+                <div class="cc-category-list">
+                    <div><span>01</span> Illegal Construction <b>↗</b></div>
+                    <div><span>02</span> Environmental Issues <b>↗</b></div>
+                    <div><span>03</span> Traffic Issues <b>↗</b></div>
+                    <div><span>04</span> Public Safety <b>↗</b></div>
+                    <div><span>05</span> Other Civic Issues <b>↗</b></div>
+                </div>
             </div>
 
         </div>
-
     </section>
 
+    <!-- STAFF ACCESS -->
+    <section class="cc-staff-section" id="staff">
+        <div class="cc-staff-inner">
+            <div>
+                <span class="cc-section-kicker">AUTHORIZED PERSONNEL</span>
+                <h2>Staff and administration access</h2>
+                <p>
+                    Dedicated access points for the teams responsible
+                    for reviewing, validating and managing complaints.
+                </p>
+            </div>
 
-    <!-- ================= ADMIN ================= -->
+            <div class="cc-staff-links">
+                <a href="/validator-login">
+                    <span>Validator Portal</span>
+                    <b>→</b>
+                </a>
 
-    <section class="admin-section" id="admin">
+                <a href="/department-login">
+                    <span>Department Portal</span>
+                    <b>→</b>
+                </a>
 
+                <a href="/admin-login">
+                    <span>Administrator Portal</span>
+                    <b>→</b>
+                </a>
+            </div>
+        </div>
+    </section>
 
-        <div class="admin-content">
-
-            <span>
-                ADMINISTRATION
-            </span>
-
-            <h2>
-                Manage Citizen Complaints
-            </h2>
-
-            <p>
-
-                Authorized administrators can review complaints,
-                assign them to the concerned department, and
-                update complaint status.
-
-            </p>
-
-
-            <a href="/admin-login"
-               class="btn primary-btn">
-
-                Admin Portal
-
+    <!-- FINAL CTA -->
+    <section class="cc-final-cta">
+        <span class="cc-section-kicker">YOUR COMMUNITY. YOUR VOICE.</span>
+        <h2>See an issue? Take the first step.</h2>
+        <p>
+            Submit a civic complaint and help bring attention
+            to the issues that matter in your community.
+        </p>
+        <div class="cc-hero-actions">
+            <a href="/report" class="cc-button cc-button-light">
+                Report an issue <span>→</span>
             </a>
-
+            <a href="/track" class="cc-button cc-button-dark-outline">
+                Track complaint
+            </a>
         </div>
-
     </section>
 
+</main>
 
-    <!-- ================= FOOTER ================= -->
+<footer class="cc-footer">
+    <div class="cc-footer-inner">
+        <a href="#home" class="cc-brand cc-footer-brand">
+            <span class="cc-logo">CC</span>
+            <span>
+                <strong>CivicConnect</strong>
+                <small>Anonymous Civic Complaint Portal</small>
+            </span>
+        </a>
 
-    <footer>
+        <p>Building a more responsive civic system.</p>
 
-
-        <div class="footer-container">
-
-
-            <div>
-
-                <h3>
-                    CivicConnect
-                </h3>
-
-                <p>
-                    Anonymous Civic Complaint Portal
-                </p>
-
-            </div>
-
-
-            <div>
-
-                <p>
-
-                    © 2026 CivicConnect. All rights reserved.
-
-                </p>
-
-            </div>
-
-
-        </div>
-
-    </footer>
-
+        <span>© 2026 CivicConnect. All rights reserved.</span>
+    </div>
+</footer>
 
 </body>
-
 </html>
